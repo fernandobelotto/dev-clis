@@ -20,7 +20,8 @@
     "commander": "^11.1.0",
     "fast-glob": "^3.3.2",
     "minimatch": "^9.0.3",
-    "progress": "^2.0.3"
+    "progress": "^2.0.3",
+    "tiktoken": "^1.0.20"
   },
   "devDependencies": {
     "@types/node": "^20.11.24",

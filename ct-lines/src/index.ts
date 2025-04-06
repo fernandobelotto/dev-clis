@@ -8,11 +8,13 @@ import { LineCounterTable, LanguageConf } from './lib/LineCounterTable';
 import { internalDefinitions } from './lib/internalDefinitions';
 import Gitignore from './lib/Gitignore';
 import { Count } from './lib/LineCounter';
+import { TokenCounter, TokenCount } from './lib/TokenCounter';
 
 interface Result {
     filePath: string;
     language: string;
     count: Count;
+    tokenCount: TokenCount;
 }
 
 interface Options {
@@ -50,17 +52,17 @@ class ResultFormatter {
         const directLevelResultTable = new Map<string, Statistics>();
         results.forEach((result) => {
             let parent = path.dirname(path.relative(this.targetDir, result.filePath));
-            getOrSet(directLevelResultTable, parent, () => new Statistics(parent + " (Files)")).add(result.count);
+            getOrSet(directLevelResultTable, parent, () => new Statistics(parent + " (Files)")).add(Object.assign(result.count, { tokenCount: result.tokenCount }));
             while (parent.length >= 0) {
-                getOrSet(this.dirResultTable, parent, () => new Statistics(parent)).add(result.count);
+                getOrSet(this.dirResultTable, parent, () => new Statistics(parent)).add(Object.assign(result.count, { tokenCount: result.tokenCount }));
                 const p = path.dirname(parent);
                 if (p === parent) {
                     break;
                 }
                 parent = p;
             }
-            getOrSet(this.langResultTable, result.language, () => new Statistics(result.language)).add(result.count);
-            this.total.add(result.count);
+            getOrSet(this.langResultTable, result.language, () => new Statistics(result.language)).add(Object.assign(result.count, { tokenCount: result.tokenCount }));
+            this.total.add(Object.assign(result.count, { tokenCount: result.tokenCount }));
         });
 
         if (options.countDirectLevelFiles) {
@@ -81,34 +83,55 @@ class ResultFormatter {
     toText() {
         const maxNamelen = Math.max(...this.results.map(res => res.filePath.length));
         const maxLanglen = Math.max(...[...this.langResultTable.keys()].map(l => l.length));
-        const resultFormat = new TextTableFormatter(this.valueToString, { title: 'filename', width: maxNamelen }, { title: 'language', width: maxLanglen },
-            { title: 'code', width: 10 }, { title: 'comment', width: 10 }, { title: 'blank', width: 10 }, { title: 'total', width: 10 });
-        const dirFormat = new TextTableFormatter(this.valueToString, { title: 'path', width: maxNamelen }, { title: 'files', width: 10 },
-            { title: 'code', width: 10 }, { title: 'comment', width: 10 }, { title: 'blank', width: 10 }, { title: 'total', width: 10 });
-        const langFormat = new TextTableFormatter(this.valueToString, { title: 'language', width: maxLanglen }, { title: 'files', width: 10 },
-            { title: 'code', width: 10 }, { title: 'comment', width: 10 }, { title: 'blank', width: 10 }, { title: 'total', width: 10 });
+        const resultFormat = new TextTableFormatter(this.valueToString, 
+            { title: 'filename', width: maxNamelen }, 
+            { title: 'language', width: maxLanglen },
+            { title: 'code', width: 10 }, 
+            { title: 'comment', width: 10 }, 
+            { title: 'blank', width: 10 }, 
+            { title: 'total', width: 10 },
+            { title: 'tokens', width: 10 }
+        );
+        const dirFormat = new TextTableFormatter(this.valueToString, 
+            { title: 'path', width: maxNamelen }, 
+            { title: 'files', width: 10 },
+            { title: 'code', width: 10 }, 
+            { title: 'comment', width: 10 }, 
+            { title: 'blank', width: 10 }, 
+            { title: 'total', width: 10 },
+            { title: 'tokens', width: 10 }
+        );
+        const langFormat = new TextTableFormatter(this.valueToString, 
+            { title: 'language', width: maxLanglen }, 
+            { title: 'files', width: 10 },
+            { title: 'code', width: 10 }, 
+            { title: 'comment', width: 10 }, 
+            { title: 'blank', width: 10 }, 
+            { title: 'total', width: 10 },
+            { title: 'tokens', width: 10 }
+        );
 
         return [
             `Directory : ${this.targetDir}`,
-            `Total : ${this.total.files} files,  ${this.total.code} codes, ${this.total.comment} comments, ${this.total.blank} blanks, all ${this.total.total} lines`,
+            `Total : ${this.total.files} files,  ${this.total.code} codes, ${this.total.comment} comments, ${this.total.blank} blanks, all ${this.total.total} lines, ${this.total.tokenCount.tokens} tokens`,
             '',
             'Languages',
             ...langFormat.headerLines,
             ...[...this.langResultTable.values()].sort((a, b) => b.code - a.code)
-                .map(v => langFormat.line(v.name, v.files, v.code, v.comment, v.blank, v.total)),
+                .map(v => langFormat.line(v.name, v.files, v.code, v.comment, v.blank, v.total, v.tokenCount.tokens)),
             ...langFormat.footerLines,
             '',
             'Directories',
             ...dirFormat.headerLines,
             ...[...this.dirResultTable.values()].sort((a, b) => a.name.localeCompare(b.name))
-                .map(v => dirFormat.line(v.name, v.files, v.code, v.comment, v.blank, v.total)),
+                .map(v => dirFormat.line(v.name, v.files, v.code, v.comment, v.blank, v.total, v.tokenCount.tokens)),
             ...dirFormat.footerLines,
             '',
             'Files',
             ...resultFormat.headerLines,
             ...this.results.sort((a, b) => a.filePath.localeCompare(b.filePath))
-                .map(v => resultFormat.line(v.filePath, v.language, v.count.code, v.count.comment, v.count.blank, v.count.total)),
-            resultFormat.line('Total', '', this.total.code, this.total.comment, this.total.blank, this.total.total),
+                .map(v => resultFormat.line(v.filePath, v.language, v.count.code, v.count.comment, v.count.blank, v.count.total, v.tokenCount.tokens)),
+            resultFormat.line('Total', '', this.total.code, this.total.comment, this.total.blank, this.total.total, this.total.tokenCount.tokens),
             ...resultFormat.footerLines,
         ].join('\n');
     }
@@ -121,21 +144,24 @@ class ResultFormatter {
                 code: this.total.code,
                 comment: this.total.comment,
                 blank: this.total.blank,
-                total: this.total.total
+                total: this.total.total,
+                tokens: this.total.tokenCount.tokens
             },
             languages: Object.fromEntries([...this.langResultTable.entries()].map(([k, v]) => [k, {
                 files: v.files,
                 code: v.code,
                 comment: v.comment,
                 blank: v.blank,
-                total: v.total
+                total: v.total,
+                tokens: v.tokenCount.tokens
             }])),
             directories: Object.fromEntries([...this.dirResultTable.entries()].map(([k, v]) => [k, {
                 files: v.files,
                 code: v.code,
                 comment: v.comment,
                 blank: v.blank,
-                total: v.total
+                total: v.total,
+                tokens: v.tokenCount.tokens
             }])),
             files: this.results.map(v => ({
                 path: v.filePath,
@@ -143,7 +169,8 @@ class ResultFormatter {
                 code: v.count.code,
                 comment: v.count.comment,
                 blank: v.count.blank,
-                total: v.count.total
+                total: v.count.total,
+                tokens: v.tokenCount.tokens
             }))
         }, null, 2);
     }
@@ -182,6 +209,7 @@ class ResultFormatter {
             `Comments : ${this.total.comment}`,
             `Blank Lines : ${this.total.blank}`,
             `Total Lines : ${this.total.total}`,
+            `Total Tokens : ${this.total.tokenCount.tokens}`,
             '',
             isDetails ? '[Summary](./results.md)' : '[Details](./details.md)',
             '',
@@ -195,7 +223,8 @@ class ResultFormatter {
             { title: 'Code', format: 'number' },
             { title: 'Comments', format: 'number' },
             { title: 'Blanks', format: 'number' },
-            { title: 'Total', format: 'number' }
+            { title: 'Total', format: 'number' },
+            { title: 'Tokens', format: 'number' }
         );
         const langFormat = new MarkdownTableFormatter(this.valueToString,
             { title: 'Language', format: 'string' },
@@ -203,18 +232,19 @@ class ResultFormatter {
             { title: 'Code', format: 'number' },
             { title: 'Comments', format: 'number' },
             { title: 'Blanks', format: 'number' },
-            { title: 'Total', format: 'number' }
+            { title: 'Total', format: 'number' },
+            { title: 'Tokens', format: 'number' }
         );
         return [
             '## Languages',
             ...langFormat.headerLines,
             ...[...this.langResultTable.values()].sort((a, b) => b.code - a.code)
-                .map(v => langFormat.line(v.name, v.files, v.code, v.comment, v.blank, v.total)),
+                .map(v => langFormat.line(v.name, v.files, v.code, v.comment, v.blank, v.total, v.tokenCount.tokens)),
             '',
             '## Directories',
             ...dirFormat.headerLines,
             ...[...this.dirResultTable.values()].sort((a, b) => a.name.localeCompare(b.name))
-                .map(v => dirFormat.line(v.name.replace(/\\/g, '\\\\'), v.files, v.code, v.comment, v.blank, v.total)),
+                .map(v => dirFormat.line(v.name.replace(/\\/g, '\\\\'), v.files, v.code, v.comment, v.blank, v.total, v.tokenCount.tokens)),
         ];
     }
 
@@ -229,7 +259,8 @@ class ResultFormatter {
             { title: 'Code', format: 'number' },
             { title: 'Comments', format: 'number' },
             { title: 'Blanks', format: 'number' },
-            { title: 'Total', format: 'number' }
+            { title: 'Total', format: 'number' },
+            { title: 'Tokens', format: 'number' }
         );
 
         const byLanguage = new Map<string, Result[]>();
@@ -256,7 +287,8 @@ class ResultFormatter {
                         v.count.code,
                         v.count.comment,
                         v.count.blank,
-                        v.count.total
+                        v.count.total,
+                        v.tokenCount.tokens
                     )),
                 ''
             ].join('\n'));
@@ -272,14 +304,18 @@ class ResultFormatter {
 class Statistics extends Count {
     public name: string;
     public files = 0;
+    public tokenCount = new TokenCount();
 
     constructor(name: string) {
         super();
         this.name = name;
     }
 
-    override add(value: Count) {
+    override add(value: Count & { tokenCount?: TokenCount }) {
         this.files++;
+        if (value.tokenCount) {
+            this.tokenCount.add(value.tokenCount);
+        }
         return super.add(value);
     }
 }
@@ -457,6 +493,7 @@ program
             // 9. Process Files
             const results: Result[] = [];
             const decoder = new TextDecoder(options.encoding);
+            const tokenCounter = new TokenCounter();
 
             for (const filePath of targetFiles) {
                 try {
@@ -465,16 +502,19 @@ program
                         const content = await fs.readFile(filePath);
                         const text = decoder.decode(content);
                         const count = counter.count(text, options.includeIncompleteLine);
+                        const tokenCount = new TokenCount(tokenCounter.countTokens(text, filePath));
                         results.push({
                             filePath,
                             language: counter.name,
-                            count
+                            count,
+                            tokenCount
                         });
                     } else if (!options.ignoreUnsupported) {
                         results.push({
                             filePath,
                             language: '(Unsupported)',
-                            count: new Count()
+                            count: new Count(),
+                            tokenCount: new TokenCount()
                         });
                     }
                 } catch (error) {
@@ -482,6 +522,9 @@ program
                 }
                 bar.tick();
             }
+
+            // Free the token counter
+            tokenCounter.free();
 
             // 10. Format Results
             const formatter = new ResultFormatter(targetDir, results, {
