@@ -1,5 +1,5 @@
 import * as path from 'path';
-import * as minimatch from 'minimatch';
+import { minimatch } from 'minimatch';
 import { LineCounter } from './LineCounter';
 
 export type LanguageConf = {
