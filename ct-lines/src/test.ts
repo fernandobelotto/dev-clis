@@ -2,11 +2,26 @@ import { LineCounterTable } from './lib/LineCounterTable';
 import { internalDefinitions } from './lib/internalDefinitions';
 import Gitignore from './lib/Gitignore';
 import { Count } from './lib/LineCounter';
+import { LanguageConf } from './lib/LineCounterTable';
 
 async function test() {
     // Test LineCounterTable
     console.log('Testing LineCounterTable...');
-    const counterTable = new LineCounterTable(new Map(Object.entries(internalDefinitions) as [string, any][]), []);
+    const definitions = new Map(
+        Object.entries(internalDefinitions).map(([key, value]) => [
+            key,
+            {
+                aliases: value.aliases ?? [],
+                filenames: value.filenames ?? [],
+                extensions: value.extensions ?? [],
+                lineComments: value.lineComments ?? [],
+                blockComments: value.blockComments ?? [],
+                blockStrings: value.blockStrings ?? [],
+                lineStrings: value.lineStrings ?? [],
+            } as LanguageConf
+        ])
+    );
+    const counterTable = new LineCounterTable(definitions, []);
     
     const testFiles = [
         'test.js',

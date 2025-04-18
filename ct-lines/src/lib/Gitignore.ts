@@ -2,7 +2,7 @@ export default class Gitignore {
     public rules: {pattern: RegExp, included: boolean}[];
 
     constructor(gitignoreData: string, gitignoreCurrentDir = '') {
-        gitignoreCurrentDir = gitignoreCurrentDir.replace(/\\/g, '/').replace(/[^\/]$/, '$&/');
+        gitignoreCurrentDir = gitignoreCurrentDir.replace(/\\/g, '/').replace(/[^/]$/, '$&/');
         this.rules = gitignoreData.split(/\r\n|\r|\n/)
             .map(line => line.trim())
             .filter(line => (line && line[0] !== '#'))
@@ -25,14 +25,14 @@ export default class Gitignore {
                 if (isNegative === (lists.length % 2 !== 0)) {
                     lists.push([]);
                 }
-                line = line.replace(/[\{\}\(\)\+\.\^\$\|]/g, '\\$&')
+                line = line.replace(/[{}()+.^$|]/g, '\\$&')
                     .replace(/(^|[^\\])\?/g, '.')
-                    .replace(/\/\*\*/g, '([\\\\/][^\\\\/]+)?')
-                    .replace(/\*\*\//g, '([^\\\\/]+[\\\\/])?')
-                    .replace(/([^\\])\*/g, '$1([^\\\\/]?)')
+                    .replace(/\/\*\*/g, '([/][^/]+)?')
+                    .replace(/\*\*\//g, '([^/]+[/])?')
+                    .replace(/([^\\])\*/g, '$1([^/]?)')
                     .replace(/\?/g, '*')
-                    .replace(/[^\/]$/, '$&(([\\\\/].*)|$)')
-                    .replace(/\/$/, '(([\\\\/].*)|$)');
+                    .replace(/[^/]$/, '$&(([/].*)|$)')
+                    .replace(/\/$/, '(([/].*)|$)');
                 lists[lists.length-1].push(line);
                 return lists;
             }, [[]])

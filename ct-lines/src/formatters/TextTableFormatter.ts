@@ -1,34 +1,43 @@
+import { padString } from '../utils/StringUtils';
+
+interface Column {
+    title: string;
+    width: number;
+}
+
 export class TextTableFormatter {
-    private valueToString: (obj: any) => string;
-    private columnInfo: { title: string, width: number }[];
+    private columns: Column[];
+    private valueToString: (obj: number | string) => string;
 
-    constructor(valueToString: (obj: any) => string, ...columnInfo: { title: string, width: number }[]) {
+    constructor(valueToString: (obj: number | string) => string, ...columns: Column[]) {
+        this.columns = columns;
         this.valueToString = valueToString;
-        this.columnInfo = columnInfo;
-        for (const info of this.columnInfo) {
-            info.width = Math.max(info.title.length, info.width);
+    }
+
+    private get totalWidth(): number {
+        return this.columns.reduce((sum, col) => sum + col.width + 3, -1);
+    }
+
+    private get separator(): string {
+        return '+' + this.columns.map(col => '-'.repeat(col.width + 2)).join('+') + '+';
+    }
+
+    get headerLines(): string[] {
+        return [
+            this.separator,
+            '| ' + this.columns.map(col => padString(col.title, col.width)).join(' | ') + ' |',
+            this.separator
+        ];
+    }
+
+    get footerLines(): string[] {
+        return [this.separator];
+    }
+
+    line(...values: (string | number)[]): string {
+        if (values.length !== this.columns.length) {
+            throw new Error(`Expected ${this.columns.length} values but got ${values.length}`);
         }
-    }
-
-    public get lineSeparator() {
-        return '+-' + this.columnInfo.map(i => '-'.repeat(i.width)).join('-+-') + '-+';
-    }
-
-    get headerLines() {
-        return [this.lineSeparator, '| ' + this.columnInfo.map(i => i.title.padEnd(i.width)).join(' | ') + ' |', this.lineSeparator];
-    }
-
-    get footerLines() {
-        return [this.lineSeparator];
-    }
-
-    public line(...data: (string | number)[]) {
-        return '| ' + data.map((d, i) => {
-            if (typeof d === 'string') {
-                return d.padEnd(this.columnInfo[i].width);
-            } else {
-                return this.valueToString(d).padStart(this.columnInfo[i].width);
-            }
-        }).join(' | ') + ' |';
+        return '| ' + values.map((v, i) => padString(this.valueToString(v), this.columns[i].width)).join(' | ') + ' |';
     }
 } 

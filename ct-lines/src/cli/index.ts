@@ -2,6 +2,7 @@ import { program } from 'commander';
 import inquirer from 'inquirer';
 import * as path from 'path';
 import { LineCounter } from '../core/LineCounter';
+import * as colors from '../utils/colors';
 
 interface Options {
     include: string[];
@@ -21,7 +22,7 @@ interface Options {
 }
 
 program
-    .name('ct-lines')
+    .name(colors.highlight('ct-lines'))
     .description('Counts lines of code, comments, and blank lines in files within a directory.')
     .version('1.0.0')
     .argument('<directory>', 'The directory to scan for files.')
@@ -50,7 +51,6 @@ program
             
             // Always output the summary to console first
             console.log(summaryOutput);
-            
             // Prompt the user if they want to generate result files
             let shouldGenerateResults = options.generateResults;
             if (shouldGenerateResults === undefined) {
@@ -58,7 +58,7 @@ program
                     {
                         type: 'confirm',
                         name: 'generateResults',
-                        message: `Would you like to generate detailed results folder at ${options.outputDir || path.join(directory, 'ct-lines-result')}?`,
+                        message: colors.info(`Would you like to generate detailed results folder at ${colors.highlight(options.outputDir || path.join(directory, 'ct-lines-result'))}?`),
                         default: true
                     }
                 ]);
@@ -70,7 +70,7 @@ program
                 await lineCounter.run();
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error(colors.error('Error:'), error);
             process.exit(1);
         }
     });

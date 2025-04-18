@@ -102,13 +102,13 @@ export class LineCounter {
             if (pattern) {
                 this.removeStringLiteral = (line) => line.replace(pattern, '');
             }
-        } catch (e) {
+        } catch {
             console.warn(`${name}: ${s.map(v=>v.join('')).join(', ')}`);
         }
     }
 
     public count(text: string, includeIncompleteLine = false): Count {
-        let result = [0, 0, 0];
+        const result = [0, 0, 0];
         let blockCommentEnd = '';
         let blockStringEnd = '';
         const lines = text.split(/\r\n|\r|\n/).map(line => line.trim());
@@ -116,7 +116,7 @@ export class LineCounter {
             lines.pop();
         }
 
-        lines.forEach((line, lineIndex) => {
+        lines.forEach((line) => {
             let type = (blockCommentEnd.length > 0) ? LineType.Comment : (blockStringEnd.length > 0) ? LineType.Code : LineType.Blank;
             let i = 0;
 

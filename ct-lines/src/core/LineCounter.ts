@@ -8,6 +8,7 @@ import Gitignore from '../lib/Gitignore';
 import { TokenCounter, TokenCount } from '../lib/TokenCounter';
 import { Count } from '../models/Count';
 import { ResultFormatter } from '../formatters/ResultFormatter';
+import * as colors from '../utils/colors';
 
 interface Result {
     filePath: string;
@@ -107,12 +108,14 @@ export class LineCounter {
             : files;
 
         if (targetFiles.length === 0) {
-            throw new Error('No files found to count.');
+            throw new Error(colors.error('No files found to count.'));
         }
 
-        const bar = new ProgressBar('[:bar] :percent :etas', {
+        const bar = new ProgressBar(colors.info('[:bar]') + ' ' + colors.number(':percent') + ' ' + colors.info(':etas'), {
             total: targetFiles.length,
-            width: 40
+            width: 40,
+            complete: '=',
+            incomplete: ' '
         });
 
         const results: Result[] = [];
@@ -143,7 +146,7 @@ export class LineCounter {
                     });
                 }
             } catch (error) {
-                console.error(`Error processing ${filePath}:`, error);
+                console.error(colors.error(`Error processing ${colors.filename(filePath)}:`), error);
             }
             bar.tick();
         }
@@ -157,7 +160,7 @@ export class LineCounter {
             this.options.outputDir = path.join(this.targetDir, 'ct-lines-result');
         }
 
-        console.log(`Generating results in ${this.options.outputDir}...`);
+        console.log(colors.info(`Generating results in ${colors.highlight(this.options.outputDir)}...`));
         await fs.mkdir(this.options.outputDir, { recursive: true });
         await fs.writeFile(path.join(this.options.outputDir, 'results.json'), formatter.toJson());
         
@@ -168,7 +171,6 @@ export class LineCounter {
         // Generate CSV files by default
         await fs.writeFile(path.join(this.options.outputDir, 'files.csv'), formatter.toFilesCsv());
         await fs.writeFile(path.join(this.options.outputDir, 'directories.csv'), formatter.toDirectoriesCsv());
-
         if (this.options.outputAsMarkdown) {
             await fs.writeFile(path.join(this.options.outputDir, 'results.md'), formatter.toMarkdown());
             await fs.writeFile(path.join(this.options.outputDir, 'details.md'), formatter.toMarkdown(true));
@@ -188,7 +190,7 @@ ${this.options.outputAsMarkdown ? '- `results.md`: Summary in markdown format\n-
     }
 
     async run(): Promise<string> {
-        console.log(`Starting line count in: ${this.targetDir}`);
+        console.log(colors.info(`Starting line count in: ${colors.highlight(this.targetDir)}`));
         
         await this.loadLanguageDefinitions();
         const gitignore = await this.loadGitignore();

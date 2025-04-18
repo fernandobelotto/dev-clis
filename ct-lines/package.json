@@ -21,19 +21,23 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
+    "@eslint/js": "^9.25.0",
+    "chalk": "5.4.1",
     "commander": "^11.1.0",
-    "fast-glob": "^3.3.2",
+    "eslint": "^9.25.0",
+    "fast-glob": "^3.3.3",
     "inquirer": "^12.5.2",
-    "minimatch": "^9.0.3",
+    "minimatch": "^9.0.5",
     "progress": "^2.0.3",
-    "tiktoken": "^1.0.20"
+    "tiktoken": "^1.0.20",
+    "typescript-eslint": "^8.30.1"
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.7",
-    "@types/node": "^20.11.24",
+    "@types/node": "^20.17.30",
     "@types/progress": "^2.0.7",
     "bun-types": "latest",
-    "typescript": "^5.3.3"
+    "typescript": "^5.8.3"
   },
   "engines": {
     "bun": ">=1.0.0"
