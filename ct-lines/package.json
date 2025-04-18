@@ -9,9 +9,13 @@
     "ct-lines": "./dist/index.js"
   },
   "scripts": {
-    "build": "bun build.ts",
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun --minify",
+    "build:watch": "bun build ./src/index.ts --outdir ./dist --target bun --watch",
+    "build:executable": "bun build ./src/index.ts --compile --outfile ct-lines",
+    "dev": "bun --watch src/index.ts",
     "start": "bun dist/index.js",
-    "test": "bun src/test.ts"
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",

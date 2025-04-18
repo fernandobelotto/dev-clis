@@ -168,8 +168,7 @@ export class LineCounter {
         // Generate CSV files by default
         await fs.writeFile(path.join(this.options.outputDir, 'files.csv'), formatter.toFilesCsv());
         await fs.writeFile(path.join(this.options.outputDir, 'directories.csv'), formatter.toDirectoriesCsv());
-        console.log('CSV files generated successfully.');
-        
+
         if (this.options.outputAsMarkdown) {
             await fs.writeFile(path.join(this.options.outputDir, 'results.md'), formatter.toMarkdown());
             await fs.writeFile(path.join(this.options.outputDir, 'details.md'), formatter.toMarkdown(true));
@@ -207,7 +206,6 @@ ${this.options.outputAsMarkdown ? '- `results.md`: Summary in markdown format\n-
                 summaryOutput = formatter.toJson();
                 break;
             case 'csv':
-                console.log('Generating CSV file...');
                 summaryOutput = formatter.toCsv();
                 break;
             case 'markdown':
