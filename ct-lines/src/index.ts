@@ -4,6 +4,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { glob, Options as GlobOptions } from 'fast-glob';
 import ProgressBar from 'progress';
+import inquirer from 'inquirer';
 import { LineCounterTable, LanguageConf } from './lib/LineCounterTable';
 import { internalDefinitions } from './lib/internalDefinitions';
 import Gitignore from './lib/Gitignore';
@@ -31,6 +32,7 @@ interface Options {
     outputAsMarkdown: boolean;
     outputAsText: boolean;
     outputAsCSV: boolean;
+    generateResults?: boolean;
 }
 
 class ResultFormatter {
@@ -131,6 +133,93 @@ class ResultFormatter {
             ...resultFormat.headerLines,
             ...this.results.sort((a, b) => a.filePath.localeCompare(b.filePath))
                 .map(v => resultFormat.line(v.filePath, v.language, v.count.code, v.count.comment, v.count.blank, v.count.total, v.tokenCount.tokens)),
+            resultFormat.line('Total', '', this.total.code, this.total.comment, this.total.blank, this.total.total, this.total.tokenCount.tokens),
+            ...resultFormat.footerLines,
+        ].join('\n');
+    }
+
+    toTextLimited() {
+        const maxNamelen = Math.max(...this.results.map(res => res.filePath.length));
+        const maxLanglen = Math.max(...[...this.langResultTable.keys()].map(l => l.length));
+        
+        // Set reasonable maximum widths for columns
+        const MAX_PATH_WIDTH = 60;
+        const MAX_LANG_WIDTH = 15;
+        
+        const resultFormat = new TextTableFormatter(this.valueToString, 
+            { title: 'filename', width: Math.min(maxNamelen, MAX_PATH_WIDTH) }, 
+            { title: 'language', width: Math.min(maxLanglen, MAX_LANG_WIDTH) },
+            { title: 'code', width: 10 }, 
+            { title: 'comment', width: 10 }, 
+            { title: 'blank', width: 10 }, 
+            { title: 'total', width: 10 },
+            { title: 'tokens', width: 10 }
+        );
+        const dirFormat = new TextTableFormatter(this.valueToString, 
+            { title: 'path', width: Math.min(maxNamelen, MAX_PATH_WIDTH) }, 
+            { title: 'files', width: 10 },
+            { title: 'code', width: 10 }, 
+            { title: 'comment', width: 10 }, 
+            { title: 'blank', width: 10 }, 
+            { title: 'total', width: 10 },
+            { title: 'tokens', width: 10 }
+        );
+        const langFormat = new TextTableFormatter(this.valueToString, 
+            { title: 'language', width: Math.min(maxLanglen, MAX_LANG_WIDTH) }, 
+            { title: 'files', width: 10 },
+            { title: 'code', width: 10 }, 
+            { title: 'comment', width: 10 }, 
+            { title: 'blank', width: 10 }, 
+            { title: 'total', width: 10 },
+            { title: 'tokens', width: 10 }
+        );
+
+        // Function to truncate long paths
+        const truncatePath = (p: string, maxLength: number) => {
+            if (p.length <= maxLength) return p;
+            const start = p.substring(0, Math.floor(maxLength / 2) - 3);
+            const end = p.substring(p.length - Math.floor(maxLength / 2));
+            return `${start}...${end}`;
+        };
+
+        // Get top 10 directories by code count
+        const topDirectories = [...this.dirResultTable.values()]
+            .sort((a, b) => b.code - a.code)
+            .slice(0, 10);
+        
+        // Get top 10 files by code count
+        const topFiles = this.results
+            .sort((a, b) => b.count.code - a.count.code)
+            .slice(0, 10);
+
+        return [
+            `Directory : ${this.targetDir}`,
+            `Total : ${this.total.files} files,  ${this.total.code} codes, ${this.total.comment} comments, ${this.total.blank} blanks, all ${this.total.total} lines, ${this.total.tokenCount.tokens} tokens`,
+            '',
+            'Languages',
+            ...langFormat.headerLines,
+            ...[...this.langResultTable.values()].sort((a, b) => b.code - a.code)
+                .map(v => langFormat.line(v.name, v.files, v.code, v.comment, v.blank, v.total, v.tokenCount.tokens)),
+            ...langFormat.footerLines,
+            '',
+            'Top 10 Directories (by code count)',
+            ...dirFormat.headerLines,
+            ...topDirectories
+                .map(v => dirFormat.line(truncatePath(v.name, MAX_PATH_WIDTH), v.files, v.code, v.comment, v.blank, v.total, v.tokenCount.tokens)),
+            ...dirFormat.footerLines,
+            '',
+            'Top 10 Files (by code count)',
+            ...resultFormat.headerLines,
+            ...topFiles
+                .map(v => resultFormat.line(
+                    truncatePath(path.relative(this.targetDir, v.filePath), MAX_PATH_WIDTH),
+                    v.language, 
+                    v.count.code, 
+                    v.count.comment, 
+                    v.count.blank, 
+                    v.count.total, 
+                    v.tokenCount.tokens
+                )),
             resultFormat.line('Total', '', this.total.code, this.total.comment, this.total.blank, this.total.total, this.total.tokenCount.tokens),
             ...resultFormat.footerLines,
         ].join('\n');
@@ -393,7 +482,7 @@ const getOrSet = <K, V>(map: Map<K, V>, key: K, otherwise: () => V) => {
 };
 
 program
-    .name('count-lines')
+    .name('ct-lines')
     .description('Counts lines of code, comments, and blank lines in files within a directory.')
     .version('1.0.0')
     .argument('<directory>', 'The directory to scan for files.')
@@ -402,7 +491,7 @@ program
     .option('--use-gitignore', 'Use .gitignore files found in the target directory to exclude files.', true)
     .option('--language-conf <path>', 'Path to a custom JSON file defining or overriding language configurations.')
     .option('-f, --output-format <format>', 'Format for the summary output (text, json, csv, markdown).', 'text')
-    .option('-o, --output-dir <path>', 'Directory to save detailed results files. Defaults to "count-lines-result" in the target directory.')
+    .option('-o, --output-dir <path>', 'Directory to save detailed results files. Defaults to "ct-lines-result" in the target directory.')
     .option('--encoding <encoding>', 'File encoding to use when reading files.', 'utf8')
     .option('--ignore-unsupported', 'Ignore files for which no language definition is found.', true)
     .option('--include-incomplete-line', 'Count the last line even if it doesn\'t end with a newline.', false)
@@ -410,6 +499,11 @@ program
     .option('--output-as-text', 'Generate text output file when using --output-dir.', true)
     .option('--output-as-csv', 'Generate CSV output file when using --output-dir.', true)
     .option('--output-as-markdown', 'Generate markdown output files when using --output-dir.', true)
+    .option('--generate-results <boolean>', 'Generate results folder with detailed reports (true/false). If not specified, user will be prompted.', (value) => {
+        if (value === 'true') return true;
+        if (value === 'false') return false;
+        return undefined;
+    })
     .action(async (directory: string, options: Options) => {
         try {
             // 1. Determine Target Directory (absolute path)
@@ -418,7 +512,7 @@ program
 
             // Set default output directory if not specified
             if (!options.outputDir) {
-                options.outputDir = path.join(targetDir, 'count-lines-result');
+                options.outputDir = path.join(targetDir, 'ct-lines-result');
             }
 
             // 2. Load Language Definitions
@@ -445,7 +539,7 @@ program
                 ...options.exclude,
                 '**/node_modules/**',
                 '**/.git/**',
-                'count-lines-result/**',
+                'ct-lines-result/**',
                 options.outputDir ? path.relative(targetDir, options.outputDir) + '/**' : ''
             ].filter(Boolean);
 
@@ -545,28 +639,48 @@ program
                     break;
                 case 'text':
                 default:
-                    summaryOutput = formatter.toText();
+                    summaryOutput = formatter.toTextLimited();
+                    break;
             }
 
-            // 11. Output Results
-            await fs.mkdir(options.outputDir, { recursive: true });
-            await fs.writeFile(path.join(options.outputDir, 'results.json'), formatter.toJson());
+            // Always output the summary to console first
+            console.log(summaryOutput);
             
-            if (options.outputAsText) {
-                await fs.writeFile(path.join(options.outputDir, 'results.txt'), formatter.toText());
-            }
-            
-            if (options.outputAsCSV) {
-                await fs.writeFile(path.join(options.outputDir, 'results.csv'), formatter.toCsv());
-            }
-            
-            if (options.outputAsMarkdown) {
-                await fs.writeFile(path.join(options.outputDir, 'results.md'), formatter.toMarkdown());
-                await fs.writeFile(path.join(options.outputDir, 'details.md'), formatter.toMarkdown(true));
+            // Prompt the user if they want to generate result files
+            let shouldGenerateResults = options.generateResults;
+            if (shouldGenerateResults === undefined) {
+                const answer = await inquirer.prompt([
+                    {
+                        type: 'confirm',
+                        name: 'generateResults',
+                        message: `Would you like to generate detailed results folder at ${options.outputDir}?`,
+                        default: true
+                    }
+                ]);
+                shouldGenerateResults = answer.generateResults;
             }
 
-            // Create a README file in the output directory
-            await fs.writeFile(path.join(options.outputDir, 'README.md'), `# Line Count Results
+            if (shouldGenerateResults) {
+                // 11. Output Results
+                console.log(`Generating results in ${options.outputDir}...`);
+                await fs.mkdir(options.outputDir, { recursive: true });
+                await fs.writeFile(path.join(options.outputDir, 'results.json'), formatter.toJson());
+                
+                if (options.outputAsText) {
+                    await fs.writeFile(path.join(options.outputDir, 'results.txt'), formatter.toText());
+                }
+                
+                if (options.outputAsCSV) {
+                    await fs.writeFile(path.join(options.outputDir, 'results.csv'), formatter.toCsv());
+                }
+                
+                if (options.outputAsMarkdown) {
+                    await fs.writeFile(path.join(options.outputDir, 'results.md'), formatter.toMarkdown());
+                    await fs.writeFile(path.join(options.outputDir, 'details.md'), formatter.toMarkdown(true));
+                }
+
+                // Create a README file in the output directory
+                await fs.writeFile(path.join(options.outputDir, 'README.md'), `# Line Count Results
 
 Generated on: ${new Date().toISOString()}
 Target Directory: ${targetDir}
@@ -575,9 +689,9 @@ This directory contains the following files:
 
 - \`results.json\`: Raw data in JSON format
 ${options.outputAsText ? '- `results.txt`: Human-readable text format\n' : ''}${options.outputAsCSV ? '- `results.csv`: CSV format for spreadsheet applications\n' : ''}${options.outputAsMarkdown ? '- `results.md`: Summary in markdown format\n- `details.md`: Detailed breakdown by language in markdown format\n' : ''}`);
-            
-            console.log(`Results saved to ${options.outputDir}`);
-            console.log(summaryOutput);
+                
+                console.log(`Results saved to ${options.outputDir}`);
+            }
         } catch (error) {
             console.error('Error:', error);
             process.exit(1);

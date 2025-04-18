@@ -1,4 +1,4 @@
-# count-lines
+# ct-lines
 
 A command-line tool for counting lines of code, comments, and blank lines in files within a directory. This tool is based on the `vscode-counter` VS Code extension and provides similar functionality in a CLI environment.
 
@@ -16,13 +16,13 @@ A command-line tool for counting lines of code, comments, and blank lines in fil
 ## Installation
 
 ```bash
-npm install -g count-lines
+npm install -g ct-lines
 ```
 
 ## Usage
 
 ```bash
-count-lines <directory> [options]
+ct-lines <directory> [options]
 ```
 
 ### Options
@@ -42,22 +42,22 @@ count-lines <directory> [options]
 
 Count lines in the current directory:
 ```bash
-count-lines .
+ct-lines .
 ```
 
 Count lines in a specific directory, excluding test files:
 ```bash
-count-lines src --exclude "**/*.test.*" --exclude "**/__tests__/**"
+ct-lines src --exclude "**/*.test.*" --exclude "**/__tests__/**"
 ```
 
 Count lines and save results in multiple formats:
 ```bash
-count-lines . --output-dir results
+ct-lines . --output-dir results
 ```
 
 Use a custom language configuration:
 ```bash
-count-lines . --language-conf custom-languages.json
+ct-lines . --language-conf custom-languages.json
 ```
 
 ## Language Configuration
@@ -105,4 +105,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-MIT 
+This project is licensed under the Apache License, Version 2.0.
+
+See the [LICENSE](LICENSE) file for the full license text. 

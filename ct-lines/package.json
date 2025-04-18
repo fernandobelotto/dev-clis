@@ -1,12 +1,12 @@
 {
-  "name": "count-lines",
+  "name": "ct-lines",
   "version": "1.0.0",
   "description": "A command-line tool for counting lines of code, comments, and blank lines in files within a directory.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "count-lines": "./dist/index.js"
+    "ct-lines": "./dist/index.js"
   },
   "scripts": {
     "build": "bun build.ts",
@@ -15,15 +15,17 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "dependencies": {
     "commander": "^11.1.0",
     "fast-glob": "^3.3.2",
+    "inquirer": "^12.5.2",
     "minimatch": "^9.0.3",
     "progress": "^2.0.3",
     "tiktoken": "^1.0.20"
   },
   "devDependencies": {
+    "@types/inquirer": "^9.0.7",
     "@types/node": "^20.11.24",
     "@types/progress": "^2.0.7",
     "bun-types": "latest",
