@@ -165,10 +165,10 @@ export class LineCounter {
             await fs.writeFile(path.join(this.options.outputDir, 'results.txt'), formatter.toText());
         }
         
-        if (this.options.outputAsCSV) {
-            console.log('Generating CSV file...');
-            await fs.writeFile(path.join(this.options.outputDir, 'results.csv'), formatter.toCsv());
-        }
+        // Generate CSV files by default
+        await fs.writeFile(path.join(this.options.outputDir, 'files.csv'), formatter.toFilesCsv());
+        await fs.writeFile(path.join(this.options.outputDir, 'directories.csv'), formatter.toDirectoriesCsv());
+        console.log('CSV files generated successfully.');
         
         if (this.options.outputAsMarkdown) {
             await fs.writeFile(path.join(this.options.outputDir, 'results.md'), formatter.toMarkdown());
@@ -183,7 +183,9 @@ Target Directory: ${this.targetDir}
 This directory contains the following files:
 
 - \`results.json\`: Raw data in JSON format
-${this.options.outputAsText ? '- `results.txt`: Human-readable text format\n' : ''}${this.options.outputAsCSV ? '- `results.csv`: CSV format for spreadsheet applications\n' : ''}${this.options.outputAsMarkdown ? '- `results.md`: Summary in markdown format\n- `details.md`: Detailed breakdown by language in markdown format\n' : ''}`);
+${this.options.outputAsText ? '- `results.txt`: Human-readable text format\n' : ''}- \`files.csv\`: CSV format with detailed file information
+- \`directories.csv\`: CSV format with directory summaries
+${this.options.outputAsMarkdown ? '- `results.md`: Summary in markdown format\n- `details.md`: Detailed breakdown by language in markdown format\n' : ''}`);
     }
 
     async run(): Promise<string> {

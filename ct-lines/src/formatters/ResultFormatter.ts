@@ -241,12 +241,31 @@ export class ResultFormatter {
     }
 
     toCsv() {
+        // Maintain original CSV format for backward compatibility
         const languages = [...this.langResultTable.keys()];
         return [
             `"filename","language","${languages.join('","')}","comment","blank","total"`,
             ...this.results.sort((a, b) => a.filePath.localeCompare(b.filePath))
                 .map(v => `"${v.filePath}","${v.language}",${languages.map(l => l === v.language ? v.count.code : 0).join(',')},${v.count.comment},${v.count.blank},${v.count.total}`),
             `"Total","-",${[...this.langResultTable.values()].map(r => r.code).join(',')},${this.total.comment},${this.total.blank},${this.total.total}`
+        ].join('\n');
+    }
+
+    toFilesCsv() {
+        return [
+            `"path","language","code","comment","blank","total","tokens"`,
+            ...this.results.sort((a, b) => a.filePath.localeCompare(b.filePath))
+                .map(v => `"${v.filePath}","${v.language}",${v.count.code},${v.count.comment},${v.count.blank},${v.count.total},${v.tokenCount.tokens}`),
+            `"Total","-",${this.total.code},${this.total.comment},${this.total.blank},${this.total.total},${this.total.tokenCount.tokens}`
+        ].join('\n');
+    }
+
+    toDirectoriesCsv() {
+        return [
+            `"path","files","code","comment","blank","total","tokens"`,
+            ...[...this.dirResultTable.values()].sort((a, b) => a.name.localeCompare(b.name))
+                .map(v => `"${v.name}",${v.files},${v.code},${v.comment},${v.blank},${v.total},${v.tokenCount.tokens}`),
+            `"Total",${this.total.files},${this.total.code},${this.total.comment},${this.total.blank},${this.total.total},${this.total.tokenCount.tokens}`
         ].join('\n');
     }
 

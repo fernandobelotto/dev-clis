@@ -1,23 +1,7 @@
 import { program } from 'commander';
-import * as fs from 'fs/promises';
-import * as path from 'path';
-import { glob, Options as GlobOptions } from 'fast-glob';
-import ProgressBar from 'progress';
 import inquirer from 'inquirer';
-import { LineCounterTable, LanguageConf } from '../lib/LineCounterTable';
-import { internalDefinitions } from '../lib/internalDefinitions';
-import Gitignore from '../lib/Gitignore';
-import { TokenCounter, TokenCount } from '../lib/TokenCounter';
-import { ResultFormatter } from '../formatters/ResultFormatter';
-import { Count } from '../models/Count';
+import * as path from 'path';
 import { LineCounter } from '../core/LineCounter';
-
-interface Result {
-    filePath: string;
-    language: string;
-    count: any;
-    tokenCount: TokenCount;
-}
 
 interface Options {
     include: string[];
