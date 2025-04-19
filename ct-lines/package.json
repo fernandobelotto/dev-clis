@@ -1,6 +1,6 @@
 {
   "name": "ct-lines",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "A command-line tool for counting lines of code, comments, and blank lines in files within a directory.",
   "type": "module",
   "main": "dist/index.js",
@@ -33,6 +33,13 @@
     "typescript-eslint": "^8.30.1"
   },
   "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^11.0.1",
+    "@semantic-release/npm": "^12.0.1",
+    "@semantic-release/release-notes-generator": "^14.0.3",
+    "semantic-release": "^24.2.3",
     "@types/inquirer": "^9.0.7",
     "@types/node": "^20.17.30",
     "@types/progress": "^2.0.7",
@@ -41,5 +48,13 @@
   },
   "engines": {
     "bun": ">=1.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fernandobelotto/ct-lines.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fernandobelotto/ct-lines/issues"
+  },
+  "homepage": "https://github.com/fernandobelotto/ct-lines#readme"
 }
