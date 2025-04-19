@@ -33,13 +33,13 @@ export class ResultFormatter {
         const directLevelResultTable = new Map<string, Statistics>();
         results.forEach((result) => {
             let parent = path.dirname(path.relative(this.targetDir, result.filePath));
-            getOrSet(directLevelResultTable, parent, () => new Statistics(parent + " (Files)")).add(result.count);
+            const directStat = getOrSet(directLevelResultTable, parent, () => new Statistics(parent + " (Files)"));
+            directStat.add(result.count);
+            directStat.tokenCount.add(result.tokenCount);
             while (parent.length >= 0) {
                 const stat = getOrSet(this.dirResultTable, parent, () => new Statistics(parent));
                 stat.add(result.count);
-                if (result.tokenCount) {
-                    stat.tokenCount = result.tokenCount;
-                }
+                stat.tokenCount.add(result.tokenCount);
                 const p = path.dirname(parent);
                 if (p === parent) {
                     break;
@@ -48,13 +48,9 @@ export class ResultFormatter {
             }
             const langStat = getOrSet(this.langResultTable, result.language, () => new Statistics(result.language));
             langStat.add(result.count);
-            if (result.tokenCount) {
-                langStat.tokenCount = result.tokenCount;
-            }
+            langStat.tokenCount.add(result.tokenCount);
             this.total.add(result.count);
-            if (result.tokenCount) {
-                this.total.tokenCount = result.tokenCount;
-            }
+            this.total.tokenCount.add(result.tokenCount);
         });
 
         if (options.countDirectLevelFiles) {
