@@ -1,6 +1,6 @@
 {
   "name": "ct-lines",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "A command-line tool for counting lines of code, comments, and blank lines in files within a directory.",
   "type": "module",
   "main": "dist/index.js",
