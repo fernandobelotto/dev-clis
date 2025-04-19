@@ -46,12 +46,7 @@ program
     })
     .action(async (directory: string, options: Options) => {
         try {
-            const lineCounter = new LineCounter(directory, options);
-            const summaryOutput = await lineCounter.run();
-            
-            // Always output the summary to console first
-            console.log(summaryOutput);
-            // Prompt the user if they want to generate result files
+            // Prompt the user if they want to generate result files before running the counter
             let shouldGenerateResults = options.generateResults;
             if (shouldGenerateResults === undefined) {
                 const answer = await inquirer.prompt([
@@ -65,10 +60,15 @@ program
                 shouldGenerateResults = answer.generateResults;
             }
 
-            if (shouldGenerateResults) {
-                options.generateResults = true;
-                await lineCounter.run();
-            }
+            // Set the generateResults option before running the counter
+            options.generateResults = shouldGenerateResults;
+            
+            // Run the counter once with the final options
+            const lineCounter = new LineCounter(directory, options);
+            const summaryOutput = await lineCounter.run();
+            
+            // Always output the summary to console
+            console.log(summaryOutput);
         } catch (error) {
             console.error(colors.error('Error:'), error);
             process.exit(1);
