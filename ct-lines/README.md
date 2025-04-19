@@ -107,4 +107,40 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is licensed under the Apache License, Version 2.0.
 
-See the [LICENSE](LICENSE) file for the full license text. 
+See the [LICENSE](LICENSE) file for the full license text.
+
+## Versioning and Release Process
+
+This project uses [semantic-release](https://github.com/semantic-release/semantic-release) to automate version management and package publishing. The release process is triggered on every push to the `main` branch and follows the Angular Commit Message Convention.
+
+### How It Works
+
+1. Analyzes commit messages since the last release
+2. Determines the next version number based on the types of changes
+3. Generates/updates the CHANGELOG.md
+4. Creates a new GitHub release with release notes
+5. Updates package.json with the new version
+6. Publishes to npm (if configured)
+
+### Commit Message Convention
+
+We follow the [Angular Commit Message Convention](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-format). Example:
+
+```
+feat(cli): add new option for output format
+fix(core): handle empty files gracefully
+```
+
+Breaking changes should include `BREAKING CHANGE:` in the commit body or a `!` after the type/scope.
+
+### Manual Release
+
+To trigger a release manually:
+
+1. Ensure you're on the main branch
+2. Run:
+```bash
+npx semantic-release
+```
+
+See `.releaserc.json` for configuration details. 
