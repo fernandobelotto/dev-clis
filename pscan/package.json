@@ -1,0 +1,60 @@
+{
+  "name": "my-cli",
+  "version": "1.0.0",
+  "description": "The default CLI for my project",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "my-cli": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun --minify",
+    "build:watch": "bun build ./src/index.ts --outdir ./dist --target bun --watch",
+    "build:executable": "bun build ./src/index.ts --compile --outfile my-cli",
+    "dev": "bun --watch src/index.ts",
+    "start": "bun dist/index.js",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@eslint/js": "^9.25.0",
+    "chalk": "5.4.1",
+    "commander": "^11.1.0",
+    "eslint": "^9.25.0",
+    "fast-glob": "^3.3.3",
+    "inquirer": "^12.5.2",
+    "minimatch": "^9.0.5",
+    "progress": "^2.0.3",
+    "tiktoken": "^1.0.20",
+    "typescript-eslint": "^8.30.1"
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^11.0.1",
+    "@semantic-release/npm": "^12.0.1",
+    "@semantic-release/release-notes-generator": "^14.0.3",
+    "semantic-release": "^24.2.3",
+    "@types/inquirer": "^9.0.7",
+    "@types/node": "^20.17.30",
+    "@types/progress": "^2.0.7",
+    "bun-types": "latest",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fernandobelotto/my-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fernandobelotto/my-cli/issues"
+  },
+  "homepage": "https://github.com/fernandobelotto/my-cli#readme"
+}
