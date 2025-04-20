@@ -1,17 +1,17 @@
 {
-  "name": "my-cli",
+  "name": "pscan",
   "version": "1.0.0",
   "description": "The default CLI for my project",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "my-cli": "./dist/index.js"
+    "pscan": "./dist/index.js"
   },
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist --target bun --minify",
     "build:watch": "bun build ./src/index.ts --outdir ./dist --target bun --watch",
-    "build:executable": "bun build ./src/index.ts --compile --outfile my-cli",
+    "build:executable": "bun build ./src/index.ts --compile --outfile pscan",
     "dev": "bun --watch src/index.ts",
     "start": "bun dist/index.js",
     "test": "bun test",
@@ -22,11 +22,13 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@eslint/js": "^9.25.0",
+    "@inquirer/prompts": "^7.4.1",
     "chalk": "5.4.1",
     "commander": "^11.1.0",
+    "enquirer": "^2.4.1",
     "eslint": "^9.25.0",
+    "execa": "^9.5.2",
     "fast-glob": "^3.3.3",
-    "inquirer": "^12.5.2",
     "minimatch": "^9.0.5",
     "progress": "^2.0.3",
     "tiktoken": "^1.0.20",
@@ -51,10 +53,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fernandobelotto/my-cli.git"
+    "url": "git+https://github.com/fernandobelotto/pscan.git"
   },
   "bugs": {
-    "url": "https://github.com/fernandobelotto/my-cli/issues"
+    "url": "https://github.com/fernandobelotto/pscan/issues"
   },
-  "homepage": "https://github.com/fernandobelotto/my-cli#readme"
+  "homepage": "https://github.com/fernandobelotto/pscan#readme"
 }
