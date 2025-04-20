@@ -1,29 +1,54 @@
-# my-cli
+# pscan
+
+A CLI tool to interactively scan and kill processes by port number on macOS/Linux. Perfect for developers who need to quickly find and kill processes occupying specific ports.
 
 ## Features
 
-- List of features here
+- 🔍 Interactive port scanning with real-time filtering
+- 🎯 Multi-select support to kill multiple processes at once
+- 🚀 Fast and efficient using native system commands
+- 💻 Works on macOS and Linux
+- ⌨️ User-friendly interface with keyboard navigation
+- 🔎 Search by port number or process name
 
 ## Installation
 
 ```bash
-npm install -g my-cli
+# Using npm
+npm install -g pscan
+
+# Using bun
+bun install -g pscan
 ```
 
 ## Usage
 
+Simply run:
 ```bash
-my-cli [options]
+pscan
 ```
 
-### Options
-
+This will:
+1. Scan for all TCP ports in LISTEN state
+2. Show an interactive interface where you can:
+   - Type to filter ports/processes
+   - Use arrow keys to navigate
+   - Space to select/unselect processes
+   - Enter to confirm selection
+3. Kill all selected processes
 
 ### Examples
 
-This is a example:
+Kill a specific port (e.g., development server on 5173):
 ```bash
-my-cli
+# Launch pscan and type "5173" to filter
+pscan
+```
+
+Kill multiple Node.js processes:
+```bash
+# Launch pscan and type "node" to filter
+pscan
 ```
 
 ## Contributing
@@ -45,8 +70,8 @@ This project uses [semantic-release](https://github.com/semantic-release/semanti
 We follow the [Angular Commit Message Convention](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-format). Example:
 
 ```
-feat(cli): add new option for output format
-fix(core): handle empty files gracefully
+feat(scan): add IPv6 support for port scanning
+fix(kill): handle process termination errors gracefully
 ```
 
 Breaking changes should include `BREAKING CHANGE:` in the commit body or a `!` after the type/scope.

@@ -29,7 +29,7 @@ assignees: ''
 - OS: [e.g. macOS 12.1, Windows 11, Ubuntu 22.04]
 - Node.js version: [e.g. 18.12.0]
 - Bun version: [e.g. 1.0.3]
-- my-cli version: [e.g. 1.0.0]
+- pscan version: [e.g. 1.0.0]
 
 ## Possible Solution
 <!-- If you have suggestions on a fix or reason for the bug -->
