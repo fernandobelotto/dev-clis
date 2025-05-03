@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 const program = new Command();
 
 program
-  .name('cmdlog')
+  .name('shellmemory')
   .description('Terminal command logger that records commands to SQLite')
   .version('1.0.0');
 
@@ -108,7 +108,7 @@ program
       });
     }
 
-    console.log(chalk.bold.blue('\n📊 CMDLOG STATISTICS'));
+    console.log(chalk.bold.blue('\n📊 SHELLMEMORY STATISTICS'));
     console.log(chalk.dim('==================='));
     
     displayTopCommands();

@@ -1,12 +1,12 @@
 {
-  "name": "cmdlog",
+  "name": "shellmemory",
   "version": "1.0.0",
   "description": "A terminal command logger that records commands into SQLite",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "cmdlog": "./dist/index.js"
+    "shellmemory": "./dist/index.js"
   },
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist --target bun --minify",
@@ -45,10 +45,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fernandobelotto/cmdlog.git"
+    "url": "git+https://github.com/fernandobelotto/shellmemory.git"
   },
   "bugs": {
-    "url": "https://github.com/fernandobelotto/cmdlog/issues"
+    "url": "https://github.com/fernandobelotto/shellmemory/issues"
   },
-  "homepage": "https://github.com/fernandobelotto/cmdlog#readme"
+  "homepage": "https://github.com/fernandobelotto/shellmemory#readme"
 }

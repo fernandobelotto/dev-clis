@@ -1,4 +1,4 @@
-# cmdlog
+# shellmemory
 
 A terminal command logger that records every command across your shell sessions directly into a SQLite database.
 
@@ -14,8 +14,8 @@ A terminal command logger that records every command across your shell sessions 
 
 1. Clone this repository:
 ```bash
-git clone https://github.com/fernandobelotto/cmdlog.git
-cd cmdlog
+git clone https://github.com/fernandobelotto/shellmemory.git
+cd shellmemory
 ```
 
 2. Install dependencies:
@@ -32,7 +32,7 @@ bun run install-cli
 ```bash
 # Add this to your .zshrc file
 function log_command() {
-  echo "$(date +%s)|$PWD|$1" | cmdlog log >/dev/null 2>&1
+  echo "$(date +%s)|$PWD|$1" | shellmemory log >/dev/null 2>&1
 }
 autoload -U add-zsh-hook
 add-zsh-hook preexec log_command
@@ -50,7 +50,7 @@ source ~/.zshrc
 To see statistics about your most used commands and hourly usage:
 
 ```bash
-cmdlog stats
+shellmemory stats
 ```
 
 ### Exporting Command History
@@ -59,13 +59,13 @@ Export your command history in JSON or CSV format:
 
 ```bash
 # Export as JSON (default)
-cmdlog export
+shellmemory export
 
 # Export as CSV
-cmdlog export --format=csv
+shellmemory export --format=csv
 
 # Export to a file
-cmdlog export --format=json --output=commands.json
+shellmemory export --format=json --output=commands.json
 ```
 
 ### Cleaning Old Commands
@@ -74,20 +74,20 @@ Remove old command entries:
 
 ```bash
 # Delete commands older than 30 days (default)
-cmdlog clean
+shellmemory clean
 
 # Delete commands older than 7 days
-cmdlog clean --older-than=7d
+shellmemory clean --older-than=7d
 
 # Delete commands older than 12 hours
-cmdlog clean --older-than=12h
+shellmemory clean --older-than=12h
 ```
 
 ## Technical Details
 
 - Uses Bun's built-in SQLite module (`bun:sqlite`)
 - Enables WAL mode for better performance
-- Data stored in `~/.cmdlog/commands.db`
+- Data stored in `~/.shellmemory/commands.db`
 
 ## License
 

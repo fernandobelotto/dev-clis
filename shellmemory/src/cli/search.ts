@@ -18,6 +18,7 @@ function formatCommandResult(result: { timestamp: number; directory: string; com
 }
 
 program
+  .name('shellmemory search')
   .description('Search for commands in your command history')
   .argument('<query>', 'Text to search for in commands')
   .action((query: string) => {

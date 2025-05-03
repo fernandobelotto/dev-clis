@@ -3,13 +3,13 @@ import { join } from 'path';
 import { homedir } from 'os';
 import { existsSync, mkdirSync } from 'fs';
 
-// Ensure cmdlog directory exists in user's home directory
-const cmdlogDir = join(homedir(), '.cmdlog');
-if (!existsSync(cmdlogDir)) {
-  mkdirSync(cmdlogDir, { recursive: true });
+// Ensure shellmemory directory exists in user's home directory
+const shellmemoryDir = join(homedir(), '.shellmemory');
+if (!existsSync(shellmemoryDir)) {
+  mkdirSync(shellmemoryDir, { recursive: true });
 }
 
-const dbPath = join(cmdlogDir, 'commands.db');
+const dbPath = join(shellmemoryDir, 'commands.db');
 
 // Function to get a new database connection
 function getConnection(): Database {
