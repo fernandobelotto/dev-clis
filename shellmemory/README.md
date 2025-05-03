@@ -32,7 +32,7 @@ bun run install-cli
 ```bash
 # Add this to your .zshrc file
 function log_command() {
-  echo "$(date +%s)|$PWD|$1" | tlogger log &
+  echo "$(date +%s)|$PWD|$1" | tlogger log >/dev/null 2>&1
 }
 autoload -U add-zsh-hook
 add-zsh-hook preexec log_command

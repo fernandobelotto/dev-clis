@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>tlogger - Terminal Command Logger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        semantic: {
+                            neutral: "#38383A",
+                            1: "#f0f8fb",
+                            2: "#aaaaaa",
+                            3: "#848485",
+                            4: "#121214",
+                            5: "#fe4456",
+                            6: "#17d48d",
+                            stroke: "rgba(240, 248, 251, 0.08)",
+                        },
+                        brand: {
+                            primary: {
+                                main: "#FF4153",
+                                dark: "#85222B",
+                            }
+                        },
+                        border: "rgba(240, 248, 251, 0.08)",
+                        background: "#09090b",
+                        foreground: "#f4f4f5",
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .terminal-window {
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background-color: #1a1a1a;
+        }
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .terminal-close { background-color: #ff5f56; }
+        .terminal-minimize { background-color: #ffbd2e; }
+        .terminal-maximize { background-color: #27c93f; }
+        .terminal-body {
+            padding: 1rem;
+            background-color: #09090b;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .cursor::after {
+            content: '|';
+            animation: blink 1.2s step-end infinite;
+        }
+        @keyframes blink {
+            from, to { opacity: 1 }
+            50% { opacity: 0 }
+        }
+        .highlight-cmd {
+            color: #17d48d;
+            font-weight: bold;
+        }
+        .highlight-output {
+            color: #aaaaaa;
+        }
+        .terminal-prompt::before {
+            content: "$ ";
+            color: #17d48d;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in forwards;
+            opacity: 0;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #FF4153;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-background text-foreground">
+    <!-- Navigation -->
+    <nav class="fixed w-full bg-background/90 backdrop-blur-sm z-10 border-b border-border">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-1">
+                <div class="text-semantic-6 text-2xl mr-1"><i class="fas fa-terminal"></i></div>
+                <div class="text-2xl font-bold text-semantic-1">tlogger</div>
+            </div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#features" class="text-semantic-2 hover:text-semantic-1 transition duration-200 nav-link">Features</a>
+                <a href="#install" class="text-semantic-2 hover:text-semantic-1 transition duration-200 nav-link">Install</a>
+                <a href="#usage" class="text-semantic-2 hover:text-semantic-1 transition duration-200 nav-link">Usage</a>
+                <a href="#examples" class="text-semantic-2 hover:text-semantic-1 transition duration-200 nav-link">Examples</a>
+            </div>
+            <a href="https://github.com/yourusername/tlogger" target="_blank" class="bg-semantic-4 hover:bg-semantic-neutral transition duration-200 text-semantic-1 px-4 py-2 rounded-md border border-border">
+                <i class="fab fa-github mr-2"></i>GitHub
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="container mx-auto px-4 pt-32 pb-20 max-w-6xl">
+        <div class="flex flex-col lg:flex-row items-center">
+            <div class="lg:w-1/2 mb-12 lg:mb-0 lg:pr-12">
+                <h1 class="text-5xl lg:text-6xl font-bold mb-6 text-semantic-1 hero-text">Never lose<br>a command<br>again.</h1>
+                <p class="text-xl text-semantic-2 mb-8 max-w-lg">A high-performance terminal command logger that records every command across all your shell sessions into a SQLite database.</p>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <a href="#install" class="bg-brand-primary-main hover:bg-brand-primary-dark text-white px-6 py-3 rounded-md text-center transition duration-200 transform hover:scale-105 inline-flex items-center justify-center">
+                        <i class="fas fa-download mr-2"></i>Install Now
+                    </a>
+                    <a href="#how-it-works" class="bg-transparent hover:bg-semantic-4 text-semantic-1 px-6 py-3 rounded-md border border-border text-center transition duration-200 inline-flex items-center justify-center">
+                        <i class="fas fa-play-circle mr-2"></i>How It Works
+                    </a>
+                </div>
+            </div>
+            <div class="lg:w-1/2">
+                <div class="terminal-window w-full max-w-xl mx-auto">
+                    <div class="terminal-header">
+                        <div class="terminal-button terminal-close"></div>
+                        <div class="terminal-button terminal-minimize"></div>
+                        <div class="terminal-button terminal-maximize"></div>
+                        <div class="ml-4 text-semantic-2 text-sm">user@machine:~</div>
+                    </div>
+                    <div class="terminal-body">
+                        <div class="text-semantic-1">
+                            <span class="terminal-prompt"><span class="highlight-cmd" id="typed-text"></span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 border-t border-border">
+        <div class="container mx-auto px-4 max-w-6xl">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl lg:text-4xl font-bold mb-4 text-semantic-1 feature-title">Key Features</h2>
+                <p class="text-semantic-2 max-w-2xl mx-auto">tlogger combines a simple setup with powerful features to help you track and analyze your terminal usage</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-semantic-4 p-8 rounded-lg feature-card group hover:scale-105 transform transition duration-300 border border-border">
+                    <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
+                        <i class="fas fa-terminal text-semantic-6 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Command History</h3>
+                    <p class="text-semantic-2">Record every command across all terminal sessions, preserving context and working directory</p>
+                </div>
+                
+                <div class="bg-semantic-4 p-8 rounded-lg feature-card group hover:scale-105 transform transition duration-300 border border-border">
+                    <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
+                        <i class="fas fa-database text-semantic-6 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">SQLite Storage</h3>
+                    <p class="text-semantic-2">Store all command history in a performant SQLite database with Bun's native integration</p>
+                </div>
+                
+                <div class="bg-semantic-4 p-8 rounded-lg feature-card group hover:scale-105 transform transition duration-300 border border-border">
+                    <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
+                        <i class="fas fa-chart-bar text-semantic-6 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Insights & Analytics</h3>
+                    <p class="text-semantic-2">Generate statistics about your most used commands, productivity patterns, and command history</p>
+                </div>
+                
+                <div class="bg-semantic-4 p-8 rounded-lg feature-card group hover:scale-105 transform transition duration-300 border border-border">
+                    <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
+                        <i class="fas fa-file-export text-semantic-6 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Flexible Export</h3>
+                    <p class="text-semantic-2">Export your command history in JSON or CSV format for external analysis or backup</p>
+                </div>
+                
+                <div class="bg-semantic-4 p-8 rounded-lg feature-card group hover:scale-105 transform transition duration-300 border border-border">
+                    <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
+                        <i class="fas fa-bolt text-semantic-6 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Lightweight & Fast</h3>
+                    <p class="text-semantic-2">Built with Bun for minimal overhead and blazing-fast performance</p>
+                </div>
+                
+                <div class="bg-semantic-4 p-8 rounded-lg feature-card group hover:scale-105 transform transition duration-300 border border-border">
+                    <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
+                        <i class="fas fa-broom text-semantic-6 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Smart Cleanup</h3>
+                    <p class="text-semantic-2">Easily manage database size with configurable cleanup options for old commands</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-20 bg-semantic-4/30 border-y border-border">
+        <div class="container mx-auto px-4 max-w-6xl">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl lg:text-4xl font-bold mb-4 text-semantic-1">How It Works</h2>
+                <p class="text-semantic-2 max-w-2xl mx-auto">tlogger integrates seamlessly with your shell to capture and organize your command history</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 text-center">
+                <div class="fade-in" style="animation-delay: 0.1s">
+                    <div class="bg-semantic-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 border border-border">
+                        <span class="text-brand-primary-main text-2xl font-bold">1</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 text-semantic-1">ZSH Hook</h3>
+                    <p class="text-semantic-2">A simple hook added to your .zshrc captures each command you run</p>
+                </div>
+                
+                <div class="fade-in" style="animation-delay: 0.3s">
+                    <div class="bg-semantic-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 border border-border">
+                        <span class="text-brand-primary-main text-2xl font-bold">2</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 text-semantic-1">SQLite Storage</h3>
+                    <p class="text-semantic-2">Commands are stored in a SQLite database with timestamp and directory context</p>
+                </div>
+                
+                <div class="fade-in" style="animation-delay: 0.5s">
+                    <div class="bg-semantic-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 border border-border">
+                        <span class="text-brand-primary-main text-2xl font-bold">3</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 text-semantic-1">CLI Tools</h3>
+                    <p class="text-semantic-2">Use tlogger commands to view statistics, export data, or clean old entries</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation Section -->
+    <section id="install" class="py-20">
+        <div class="container mx-auto px-4 max-w-6xl">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl lg:text-4xl font-bold mb-4 text-semantic-1 install-title">Installation</h2>
+                <p class="text-semantic-2 max-w-2xl mx-auto">Get started with tlogger in just a few steps</p>
+            </div>
+
+            <div class="max-w-3xl mx-auto">
+                <div class="grid gap-8">
+                    <div class="bg-semantic-4 p-8 rounded-lg border border-border">
+                        <h3 class="text-xl font-bold mb-4 text-semantic-1 flex items-center">
+                            <span class="bg-brand-primary-main/20 text-semantic-6 w-8 h-8 rounded-full flex items-center justify-center mr-3">1</span>
+                            Clone & Install
+                        </h3>
+                        <div class="terminal-window">
+                            <div class="terminal-header">
+                                <div class="terminal-button terminal-close"></div>
+                                <div class="terminal-button terminal-minimize"></div>
+                                <div class="terminal-button terminal-maximize"></div>
+                                <div class="ml-4 text-semantic-2 text-sm">installation</div>
+                            </div>
+                            <div class="terminal-body relative">
+                                <div class="flex justify-between items-center absolute top-2 right-2">
+                                    <button id="copyBtn" class="bg-semantic-4 hover:bg-semantic-neutral text-semantic-1 px-3 py-1 rounded text-xs transition duration-200">
+                                        <i class="far fa-copy mr-1"></i>Copy
+                                    </button>
+                                </div>
+                                <pre id="installCommand" class="text-semantic-2"><span class="terminal-prompt"><span class="highlight-cmd">git clone https://github.com/yourusername/tlogger.git</span></span>
+<span class="terminal-prompt"><span class="highlight-cmd">cd tlogger</span></span>
+<span class="terminal-prompt"><span class="highlight-cmd">bun install</span></span>
+<span class="terminal-prompt"><span class="highlight-cmd">bun run install-cli</span></span></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-semantic-4 p-8 rounded-lg border border-border">
+                        <h3 class="text-xl font-bold mb-4 text-semantic-1 flex items-center">
+                            <span class="bg-brand-primary-main/20 text-semantic-6 w-8 h-8 rounded-full flex items-center justify-center mr-3">2</span>
+                            Add to your .zshrc
+                        </h3>
+                        <div class="terminal-window">
+                            <div class="terminal-header">
+                                <div class="terminal-button terminal-close"></div>
+                                <div class="terminal-button terminal-minimize"></div>
+                                <div class="terminal-button terminal-maximize"></div>
+                                <div class="ml-4 text-semantic-2 text-sm">~/.zshrc</div>
+                            </div>
+                            <div class="terminal-body relative">
+                                <div class="flex justify-between items-center absolute top-2 right-2">
+                                    <button id="copyZshBtn" class="bg-semantic-4 hover:bg-semantic-neutral text-semantic-1 px-3 py-1 rounded text-xs transition duration-200">
+                                        <i class="far fa-copy mr-1"></i>Copy
+                                    </button>
+                                </div>
+                                <pre id="zshCommand" class="text-semantic-2"># Add this to your .zshrc file
+<span class="highlight-cmd">function log_command() {
+  echo "$(date +%s)|$PWD|$1" | tlogger log >/dev/null 2>&1
+}
+autoload -U add-zsh-hook
+add-zsh-hook preexec log_command</span></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-semantic-4 p-8 rounded-lg border border-border">
+                        <h3 class="text-xl font-bold mb-4 text-semantic-1 flex items-center">
+                            <span class="bg-brand-primary-main/20 text-semantic-6 w-8 h-8 rounded-full flex items-center justify-center mr-3">3</span>
+                            Reload your shell
+                        </h3>
+                        <div class="terminal-window">
+                            <div class="terminal-header">
+                                <div class="terminal-button terminal-close"></div>
+                                <div class="terminal-button terminal-minimize"></div>
+                                <div class="terminal-button terminal-maximize"></div>
+                                <div class="ml-4 text-semantic-2 text-sm">terminal</div>
+                            </div>
+                            <div class="terminal-body">
+                                <pre class="text-semantic-2"><span class="terminal-prompt"><span class="highlight-cmd">source ~/.zshrc</span></span></pre>
+                                <p class="mt-3 text-semantic-2">That's it! tlogger is now recording your commands.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Usage Examples Section -->
+    <section id="usage" class="py-20 bg-semantic-4/30 border-y border-border">
+        <div class="container mx-auto px-4 max-w-6xl">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl lg:text-4xl font-bold mb-4 text-semantic-1 usage-title">Usage Examples</h2>
+                <p class="text-semantic-2 max-w-2xl mx-auto">Simple commands to access your command history data</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-semantic-4 p-8 rounded-lg border border-border">
+                    <h3 class="text-xl font-bold mb-4 text-semantic-1">View Command Statistics</h3>
+                    <div class="terminal-window mb-4">
+                        <div class="terminal-header">
+                            <div class="terminal-button terminal-close"></div>
+                            <div class="terminal-button terminal-minimize"></div>
+                            <div class="terminal-button terminal-maximize"></div>
+                            <div class="ml-4 text-semantic-2 text-sm">Command</div>
+                        </div>
+                        <div class="terminal-body">
+                            <pre class="text-semantic-2"><span class="terminal-prompt"><span class="highlight-cmd">tlogger stats</span></span></pre>
+                        </div>
+                    </div>
+                    <div class="terminal-window">
+                        <div class="terminal-header">
+                            <div class="terminal-button terminal-close"></div>
+                            <div class="terminal-button terminal-minimize"></div>
+                            <div class="terminal-button terminal-maximize"></div>
+                            <div class="ml-4 text-semantic-2 text-sm">Output</div>
+                        </div>
+                        <div class="terminal-body">
+                            <pre class="text-semantic-2">Most Used Commands:
+<span class="highlight-output">  git commit -m : 143 times
+  npm run dev   : 89 times
+  ls            : 76 times
+  cd            : 62 times
+  git push      : 58 times</span>
+
+Command Activity by Hour:
+<span class="highlight-output">  09:00 - 12:00 : ████████████ 32%
+  12:00 - 15:00 : ██████████   26% 
+  15:00 - 18:00 : ███████████  29%
+  18:00 - 21:00 : █████        13%</span>
+
+Total Commands: <span class="highlight-output">1,243</span>
+First Command: <span class="highlight-output">2023-06-12</span>
+Database Size: <span class="highlight-output">2.4 MB</span></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-semantic-4 p-8 rounded-lg border border-border">
+                    <h3 class="text-xl font-bold mb-4 text-semantic-1">Export Command History</h3>
+                    <div class="terminal-window mb-4">
+                        <div class="terminal-header">
+                            <div class="terminal-button terminal-close"></div>
+                            <div class="terminal-button terminal-minimize"></div>
+                            <div class="terminal-button terminal-maximize"></div>
+                            <div class="ml-4 text-semantic-2 text-sm">Command</div>
+                        </div>
+                        <div class="terminal-body">
+                            <pre class="text-semantic-2"><span class="terminal-prompt"><span class="highlight-cmd">tlogger export --format=json --output=commands.json</span></span></pre>
+                        </div>
+                    </div>
+                    <div class="terminal-window">
+                        <div class="terminal-header">
+                            <div class="terminal-button terminal-close"></div>
+                            <div class="terminal-button terminal-minimize"></div>
+                            <div class="terminal-button terminal-maximize"></div>
+                            <div class="ml-4 text-semantic-2 text-sm">Output</div>
+                        </div>
+                        <div class="terminal-body">
+                            <pre class="text-semantic-2">Exporting command history...
+<span class="highlight-output">[
+  {
+    "id": 1,
+    "command": "git clone https://github.com/example/repo.git",
+    "directory": "/Users/username/Projects",
+    "timestamp": 1686581324
+  },
+  {
+    "id": 2,
+    "command": "cd repo",
+    "directory": "/Users/username/Projects",
+    "timestamp": 1686581330
+  },
+  ...
+]</span>
+
+Export complete: <span class="highlight-output">1,243 commands</span> exported to <span class="highlight-output">commands.json</span></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-semantic-4 p-8 rounded-lg border border-border">
+                    <h3 class="text-xl font-bold mb-4 text-semantic-1">Clean Old Commands</h3>
+                    <div class="terminal-window mb-4">
+                        <div class="terminal-header">
+                            <div class="terminal-button terminal-close"></div>
+                            <div class="terminal-button terminal-minimize"></div>
+                            <div class="terminal-button terminal-maximize"></div>
+                            <div class="ml-4 text-semantic-2 text-sm">Command</div>
+                        </div>
+                        <div class="terminal-body">
+                            <pre class="text-semantic-2"><span class="terminal-prompt"><span class="highlight-cmd">tlogger clean --older-than=30d</span></span></pre>
+                        </div>
+                    </div>
+                    <div class="terminal-window">
+                        <div class="terminal-header">
+                            <div class="terminal-button terminal-close"></div>
+                            <div class="terminal-button terminal-minimize"></div>
+                            <div class="terminal-button terminal-maximize"></div>
+                            <div class="ml-4 text-semantic-2 text-sm">Output</div>
+                        </div>
+                        <div class="terminal-body">
+                            <pre class="text-semantic-2">Cleaning commands older than 30 days...
+
+Commands before cleanup: <span class="highlight-output">1,243</span>
+Commands deleted: <span class="highlight-output">213</span>
+Commands remaining: <span class="highlight-output">1,030</span>
+
+Database size before: <span class="highlight-output">2.4 MB</span>
+Database size after: <span class="highlight-output">2.1 MB</span>
+
+Cleanup complete!</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-semantic-4 p-8 rounded-lg border border-border">
+                    <h3 class="text-xl font-bold mb-4 text-semantic-1">Search Command History</h3>
+                    <div class="terminal-window mb-4">
+                        <div class="terminal-header">
+                            <div class="terminal-button terminal-close"></div>
+                            <div class="terminal-button terminal-minimize"></div>
+                            <div class="terminal-button terminal-maximize"></div>
+                            <div class="ml-4 text-semantic-2 text-sm">Command</div>
+                        </div>
+                        <div class="terminal-body">
+                            <pre class="text-semantic-2"><span class="terminal-prompt"><span class="highlight-cmd">tlogger search "docker"</span></span></pre>
+                        </div>
+                    </div>
+                    <div class="terminal-window">
+                        <div class="terminal-header">
+                            <div class="terminal-button terminal-close"></div>
+                            <div class="terminal-button terminal-minimize"></div>
+                            <div class="terminal-button terminal-maximize"></div>
+                            <div class="ml-4 text-semantic-2 text-sm">Output</div>
+                        </div>
+                        <div class="terminal-body">
+                            <pre class="text-semantic-2">Searching for commands containing "<span class="highlight-output">docker</span>"...
+
+<span class="highlight-output">2023-08-12 09:45:23</span> [<span class="highlight-cmd">/Users/username/Projects/app</span>]
+  <span class="highlight-cmd">docker-compose up -d</span>
+
+<span class="highlight-output">2023-08-12 10:32:15</span> [<span class="highlight-cmd">/Users/username/Projects/app</span>]
+  <span class="highlight-cmd">docker ps</span>
+
+<span class="highlight-output">2023-08-13 14:20:05</span> [<span class="highlight-cmd">/Users/username/Projects/app</span>]
+  <span class="highlight-cmd">docker logs -f web</span>
+
+<span class="highlight-output">2023-08-15 16:45:32</span> [<span class="highlight-cmd">/Users/username/Projects/app</span>]
+  <span class="highlight-cmd">docker-compose down</span>
+
+Found <span class="highlight-output">12 commands</span> matching "docker"</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why tlogger Section -->
+    <section id="examples" class="py-20">
+        <div class="container mx-auto px-4 max-w-6xl">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl lg:text-4xl font-bold mb-4 text-semantic-1">Why tlogger?</h2>
+                <p class="text-semantic-2 max-w-2xl mx-auto">tlogger offers significant benefits over traditional shell history</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12">
+                <div>
+                    <h3 class="text-xl font-bold mb-6 text-semantic-1 border-l-4 border-brand-primary-main pl-4">Standard shell history</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <div class="text-semantic-5 mt-1 mr-3"><i class="fas fa-times-circle"></i></div>
+                            <p class="text-semantic-2">Limited history size (typically 1000 commands)</p>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="text-semantic-5 mt-1 mr-3"><i class="fas fa-times-circle"></i></div>
+                            <p class="text-semantic-2">History stored in text files, easily corrupted</p>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="text-semantic-5 mt-1 mr-3"><i class="fas fa-times-circle"></i></div>
+                            <p class="text-semantic-2">No context about working directory</p>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="text-semantic-5 mt-1 mr-3"><i class="fas fa-times-circle"></i></div>
+                            <p class="text-semantic-2">No analytics or insights about usage</p>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="text-semantic-5 mt-1 mr-3"><i class="fas fa-times-circle"></i></div>
+                            <p class="text-semantic-2">History separate for each shell session</p>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="text-semantic-5 mt-1 mr-3"><i class="fas fa-times-circle"></i></div>
+                            <p class="text-semantic-2">Limited search capabilities</p>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-xl font-bold mb-6 text-semantic-1 border-l-4 border-semantic-6 pl-4">tlogger advantages</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <div class="text-semantic-6 mt-1 mr-3"><i class="fas fa-check-circle"></i></div>
+                            <p class="text-semantic-2">Unlimited history size (constrained only by disk space)</p>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="text-semantic-6 mt-1 mr-3"><i class="fas fa-check-circle"></i></div>
+                            <p class="text-semantic-2">Robust SQLite database storage with WAL mode</p>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="text-semantic-6 mt-1 mr-3"><i class="fas fa-check-circle"></i></div>
+                            <p class="text-semantic-2">Records working directory for every command</p>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="text-semantic-6 mt-1 mr-3"><i class="fas fa-check-circle"></i></div>
+                            <p class="text-semantic-2">Rich analytics and usage statistics</p>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="text-semantic-6 mt-1 mr-3"><i class="fas fa-check-circle"></i></div>
+                            <p class="text-semantic-2">Unified history across all terminal sessions</p>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="text-semantic-6 mt-1 mr-3"><i class="fas fa-check-circle"></i></div>
+                            <p class="text-semantic-2">Powerful search with filtering options</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 bg-brand-primary-main/10 border-y border-border">
+        <div class="container mx-auto px-4 max-w-4xl text-center">
+            <h2 class="text-3xl lg:text-4xl font-bold mb-6 text-semantic-1">Ready to start logging?</h2>
+            <p class="text-semantic-2 mb-8 max-w-2xl mx-auto">Never lose track of your command history again. Install tlogger today and take control of your terminal.</p>
+            <a href="#install" class="inline-block bg-brand-primary-main hover:bg-brand-primary-dark text-white px-8 py-4 rounded-md text-lg font-medium transition duration-200 transform hover:scale-105">
+                Get Started Now
+            </a>
+            <a href="https://github.com/yourusername/tlogger" target="_blank" class="inline-block ml-4 bg-semantic-4 hover:bg-semantic-neutral text-semantic-1 px-8 py-4 rounded-md text-lg font-medium border border-border transition duration-200">
+                <i class="fab fa-github mr-2"></i>Star on GitHub
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-border">
+        <div class="container mx-auto px-4 max-w-6xl">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center space-x-2 mb-6 md:mb-0">
+                    <div class="text-semantic-6 text-xl"><i class="fas fa-terminal"></i></div>
+                    <div class="text-xl font-bold text-semantic-1">tlogger</div>
+                </div>
+                <div class="text-center md:text-right">
+                    <p class="text-semantic-3 mb-2">Made with <span class="text-semantic-5">♥</span> using Bun</p>
+                    <p class="text-semantic-3">Licensed under <a href="https://github.com/yourusername/tlogger/blob/main/LICENSE" class="text-brand-primary-main hover:underline">Apache License 2.0</a></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Copy Notification -->
+    <div id="copyNotification" class="hidden fixed bottom-4 right-4 bg-semantic-6 text-background px-4 py-3 rounded-lg shadow-lg">
+        Copied to clipboard!
+    </div>
+
+    <script>
+        // GSAP Animations
+        document.addEventListener('DOMContentLoaded', () => {
+            // Typed.js animation for terminal
+            new Typed('#typed-text', {
+                strings: [
+                    'git commit -m "Initial commit"',
+                    'npm run dev',
+                    'docker-compose up -d',
+                    'tlogger stats',
+                    'python server.py',
+                    'find . -name "*.js" | xargs grep "TODO"'
+                ],
+                typeSpeed: 50,
+                backSpeed: 30,
+                loop: true,
+                smartBackspace: true
+            });
+
+            // Animate hero text
+            gsap.from('.hero-text', {
+                duration: 1.2,
+                y: 50,
+                opacity: 0,
+                ease: 'power3.out'
+            });
+
+            // Animate section titles on scroll
+            const titles = document.querySelectorAll('h2');
+            titles.forEach(title => {
+                gsap.from(title, {
+                    scrollTrigger: {
+                        trigger: title,
+                        start: 'top 80%',
+                    },
+                    duration: 0.8,
+                    y: 30,
+                    opacity: 0,
+                    ease: 'power2.out'
+                });
+            });
+
+            // Feature cards staggered animation
+            gsap.from('.feature-card', {
+                scrollTrigger: {
+                    trigger: '.feature-card',
+                    start: 'top 80%',
+                },
+                duration: 0.6,
+                y: 30,
+                opacity: 0,
+                stagger: 0.1,
+                ease: 'power2.out'
+            });
+
+            // Copy button functionality for install command
+            const copyBtn = document.getElementById('copyBtn');
+            const installCommand = document.getElementById('installCommand');
+            const copyNotification = document.getElementById('copyNotification');
+
+            copyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(installCommand.textContent.replace(/\$ /g, ''));
+                showCopyNotification();
+            });
+
+            // Copy button functionality for ZSH command
+            const copyZshBtn = document.getElementById('copyZshBtn');
+            const zshCommand = document.getElementById('zshCommand');
+
+            copyZshBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(zshCommand.textContent);
+                showCopyNotification();
+            });
+
+            function showCopyNotification() {
+                // Show notification
+                copyNotification.classList.remove('hidden');
+                
+                // Hide notification after 2 seconds
+                gsap.to(copyNotification, {
+                    duration: 0.3,
+                    opacity: 1,
+                    y: -10,
+                    ease: 'power2.out',
+                    onComplete: () => {
+                        setTimeout(() => {
+                            gsap.to(copyNotification, {
+                                duration: 0.3,
+                                opacity: 0,
+                                y: 0,
+                                ease: 'power2.in',
+                                onComplete: () => {
+                                    copyNotification.classList.add('hidden');
+                                }
+                            });
+                        }, 2000);
+                    }
+                });
+            }
+
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    const href = this.getAttribute('href');
+                    if (href === '#') return;
+                    
+                    const target = document.querySelector(href);
+                    if (target) {
+                        window.scrollTo({
+                            top: target.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
