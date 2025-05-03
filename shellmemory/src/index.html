@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <title>tlogger - Terminal Command Logger</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
@@ -33,12 +37,51 @@
                         border: "rgba(240, 248, 251, 0.08)",
                         background: "#09090b",
                         foreground: "#f4f4f5",
-                    }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans"', 'sans-serif'],
+                    },
                 }
             }
         }
     </script>
     <style>
+        body {
+body {font-family: "Noto Sans", sans-serif; font-optical-sizing: auto; font-weight: 400; font-style: normal; font-variation-settings: "wdth" 100;}
+            font-family: "Noto Sans", sans-serif;
+            font-optical-sizing: auto;
+            font-style: normal;
+            font-variation-settings: "wdth" 100;
+        }
+        
+        .font-light {
+            font-weight: 300;
+        }
+        
+        .font-normal {
+            font-weight: 400;
+        }
+        
+        .font-medium {
+            font-weight: 500;
+        }
+        
+        .font-semibold {
+            font-weight: 600;
+        }
+        
+        .font-bold {
+            font-weight: 700;
+        }
+        
+        .font-extrabold {
+            font-weight: 800;
+        }
+        
+        .font-black {
+            font-weight: 900;
+        }
+        
         .terminal-window {
             border-radius: 0.5rem;
             overflow: hidden;
@@ -60,6 +103,7 @@
         .terminal-minimize { background-color: #ffbd2e; }
         .terminal-maximize { background-color: #27c93f; }
         .terminal-body {
+body {font-family: "Noto Sans", sans-serif; font-optical-sizing: auto; font-weight: 400; font-style: normal; font-variation-settings: "wdth" 100;}
             padding: 1rem;
             background-color: #09090b;
             font-family: monospace;
@@ -119,7 +163,7 @@
         }
     </style>
 </head>
-<body class="bg-background text-foreground">
+<body class="bg-background text-foreground font-normal">
     <!-- Navigation -->
     <nav class="fixed w-full bg-background/90 backdrop-blur-sm z-10 border-b border-border">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -128,12 +172,12 @@
                 <div class="text-2xl font-bold text-semantic-1">tlogger</div>
             </div>
             <div class="hidden md:flex space-x-8">
-                <a href="#features" class="text-semantic-2 hover:text-semantic-1 transition duration-200 nav-link">Features</a>
-                <a href="#install" class="text-semantic-2 hover:text-semantic-1 transition duration-200 nav-link">Install</a>
-                <a href="#usage" class="text-semantic-2 hover:text-semantic-1 transition duration-200 nav-link">Usage</a>
-                <a href="#examples" class="text-semantic-2 hover:text-semantic-1 transition duration-200 nav-link">Examples</a>
+                <a href="#features" class="text-semantic-2 hover:text-semantic-1 transition duration-200 nav-link font-medium">Features</a>
+                <a href="#install" class="text-semantic-2 hover:text-semantic-1 transition duration-200 nav-link font-medium">Install</a>
+                <a href="#usage" class="text-semantic-2 hover:text-semantic-1 transition duration-200 nav-link font-medium">Usage</a>
+                <a href="#examples" class="text-semantic-2 hover:text-semantic-1 transition duration-200 nav-link font-medium">Examples</a>
             </div>
-            <a href="https://github.com/yourusername/tlogger" target="_blank" class="bg-semantic-4 hover:bg-semantic-neutral transition duration-200 text-semantic-1 px-4 py-2 rounded-md border border-border">
+            <a href="https://github.com/yourusername/tlogger" target="_blank" class="bg-semantic-4 hover:bg-semantic-neutral transition duration-200 text-semantic-1 px-4 py-2 rounded-md border border-border font-medium">
                 <i class="fab fa-github mr-2"></i>GitHub
             </a>
         </div>
@@ -143,13 +187,13 @@
     <div class="container mx-auto px-4 pt-32 pb-20 max-w-6xl">
         <div class="flex flex-col lg:flex-row items-center">
             <div class="lg:w-1/2 mb-12 lg:mb-0 lg:pr-12">
-                <h1 class="text-5xl lg:text-6xl font-bold mb-6 text-semantic-1 hero-text">Never lose<br>a command<br>again.</h1>
-                <p class="text-xl text-semantic-2 mb-8 max-w-lg">A high-performance terminal command logger that records every command across all your shell sessions into a SQLite database.</p>
+                <h1 class="text-5xl lg:text-6xl font-black mb-6 text-semantic-1 hero-text leading-tight">Never lose<br>a command<br>again.</h1>
+                <p class="text-xl text-semantic-2 mb-8 max-w-lg font-normal">A high-performance terminal command logger that records every command across all your shell sessions into a SQLite database.</p>
                 <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                    <a href="#install" class="bg-brand-primary-main hover:bg-brand-primary-dark text-white px-6 py-3 rounded-md text-center transition duration-200 transform hover:scale-105 inline-flex items-center justify-center">
+                    <a href="#install" class="bg-brand-primary-main hover:bg-brand-primary-dark text-white px-6 py-3 rounded-md text-center transition duration-200 transform hover:scale-105 inline-flex items-center justify-center font-semibold">
                         <i class="fas fa-download mr-2"></i>Install Now
                     </a>
-                    <a href="#how-it-works" class="bg-transparent hover:bg-semantic-4 text-semantic-1 px-6 py-3 rounded-md border border-border text-center transition duration-200 inline-flex items-center justify-center">
+                    <a href="#how-it-works" class="bg-transparent hover:bg-semantic-4 text-semantic-1 px-6 py-3 rounded-md border border-border text-center transition duration-200 inline-flex items-center justify-center font-semibold">
                         <i class="fas fa-play-circle mr-2"></i>How It Works
                     </a>
                 </div>
@@ -177,7 +221,7 @@
         <div class="container mx-auto px-4 max-w-6xl">
             <div class="text-center mb-16 animate-on-scroll">
                 <h2 class="text-3xl lg:text-4xl font-bold mb-4 text-semantic-1 feature-title">Key Features</h2>
-                <p class="text-semantic-2 max-w-2xl mx-auto">tlogger combines a simple setup with powerful features to help you track and analyze your terminal usage</p>
+                <p class="text-semantic-2 max-w-2xl mx-auto font-normal">tlogger combines a simple setup with powerful features to help you track and analyze your terminal usage</p>
             </div>
 
             <div class="grid md:grid-cols-3 gap-8">
@@ -185,48 +229,48 @@
                     <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
                         <i class="fas fa-terminal text-brand-primary-main text-2xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Command History</h3>
-                    <p class="text-semantic-2">Record every command across all terminal sessions, preserving context and working directory</p>
+                    <h3 class="text-xl font-semibold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Command History</h3>
+                    <p class="text-semantic-2 font-normal">Record every command across all terminal sessions, preserving context and working directory</p>
                 </div>
                 
                 <div class="bg-semantic-4 p-8 rounded-lg feature-card animate-on-scroll border border-border" style="transition-delay: 100ms;">
                     <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
                         <i class="fas fa-database text-brand-primary-main text-2xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">SQLite Storage</h3>
-                    <p class="text-semantic-2">Store all command history in a performant SQLite database with Bun's native integration</p>
+                    <h3 class="text-xl font-semibold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">SQLite Storage</h3>
+                    <p class="text-semantic-2 font-normal">Store all command history in a performant SQLite database with Bun's native integration</p>
                 </div>
                 
                 <div class="bg-semantic-4 p-8 rounded-lg feature-card animate-on-scroll border border-border" style="transition-delay: 200ms;">
                     <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
                         <i class="fas fa-chart-bar text-brand-primary-main text-2xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Insights & Analytics</h3>
-                    <p class="text-semantic-2">Generate statistics about your most used commands, productivity patterns, and command history</p>
+                    <h3 class="text-xl font-semibold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Insights & Analytics</h3>
+                    <p class="text-semantic-2 font-normal">Generate statistics about your most used commands, productivity patterns, and command history</p>
                 </div>
                 
                 <div class="bg-semantic-4 p-8 rounded-lg feature-card animate-on-scroll border border-border" style="transition-delay: 300ms;">
                     <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
                         <i class="fas fa-file-export text-brand-primary-main text-2xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Flexible Export</h3>
-                    <p class="text-semantic-2">Export your command history in JSON or CSV format for external analysis or backup</p>
+                    <h3 class="text-xl font-semibold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Flexible Export</h3>
+                    <p class="text-semantic-2 font-normal">Export your command history in JSON or CSV format for external analysis or backup</p>
                 </div>
                 
                 <div class="bg-semantic-4 p-8 rounded-lg feature-card animate-on-scroll border border-border" style="transition-delay: 400ms;">
                     <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
                         <i class="fas fa-bolt text-brand-primary-main text-2xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Lightweight & Fast</h3>
-                    <p class="text-semantic-2">Built with Bun for minimal overhead and blazing-fast performance</p>
+                    <h3 class="text-xl font-semibold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Lightweight & Fast</h3>
+                    <p class="text-semantic-2 font-normal">Built with Bun for minimal overhead and blazing-fast performance</p>
                 </div>
                 
                 <div class="bg-semantic-4 p-8 rounded-lg feature-card animate-on-scroll border border-border" style="transition-delay: 500ms;">
                     <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
                         <i class="fas fa-broom text-brand-primary-main text-2xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Smart Cleanup</h3>
-                    <p class="text-semantic-2">Easily manage database size with configurable cleanup options for old commands</p>
+                    <h3 class="text-xl font-semibold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Smart Cleanup</h3>
+                    <p class="text-semantic-2 font-normal">Easily manage database size with configurable cleanup options for old commands</p>
                 </div>
             </div>
         </div>
