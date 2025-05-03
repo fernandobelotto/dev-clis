@@ -6,7 +6,7 @@ import { Command } from 'commander';
 const program = new Command();
 
 program
-  .name('tlogger export')
+  .name('cmdlog export')
   .description('Export command logs to JSON or CSV format')
   .option('-f, --format <format>', 'output format (json or csv)', 'json')
   .option('-o, --output <file>', 'output file (if not specified, writes to stdout)')

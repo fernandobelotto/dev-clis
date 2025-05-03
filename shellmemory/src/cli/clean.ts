@@ -5,7 +5,7 @@ import { Command } from 'commander';
 const program = new Command();
 
 program
-  .name('tlogger clean')
+  .name('cmdlog clean')
   .description('Clean old command log entries')
   .option('-o, --older-than <period>', 'delete entries older than specified period (e.g., 30d, 24h)', '30d')
   .parse(process.argv);

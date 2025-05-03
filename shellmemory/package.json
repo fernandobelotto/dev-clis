@@ -1,12 +1,12 @@
 {
-  "name": "tlogger",
+  "name": "cmdlog",
   "version": "1.0.0",
   "description": "A terminal command logger that records commands into SQLite",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "tlogger": "./dist/index.js"
+    "cmdlog": "./dist/index.js"
   },
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist --target bun --minify",
@@ -45,10 +45,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fernandobelotto/my-cli.git"
+    "url": "git+https://github.com/fernandobelotto/cmdlog.git"
   },
   "bugs": {
-    "url": "https://github.com/fernandobelotto/my-cli/issues"
+    "url": "https://github.com/fernandobelotto/cmdlog/issues"
   },
-  "homepage": "https://github.com/fernandobelotto/my-cli#readme"
+  "homepage": "https://github.com/fernandobelotto/cmdlog#readme"
 }

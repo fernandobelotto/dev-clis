@@ -54,7 +54,7 @@ function displayHourlyDistribution() {
 }
 
 function main() {
-  console.log(chalk.bold.blue('\n📊 TLOGGER STATISTICS'));
+  console.log(chalk.bold.blue('\n📊 CMDLOG STATISTICS'));
   console.log(chalk.dim('==================='));
   
   displayTopCommands();

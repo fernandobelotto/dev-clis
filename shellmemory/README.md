@@ -1,4 +1,4 @@
-# tlogger
+# cmdlog
 
 A terminal command logger that records every command across your shell sessions directly into a SQLite database.
 
@@ -14,8 +14,8 @@ A terminal command logger that records every command across your shell sessions 
 
 1. Clone this repository:
 ```bash
-git clone https://github.com/yourusername/tlogger.git
-cd tlogger
+git clone https://github.com/fernandobelotto/cmdlog.git
+cd cmdlog
 ```
 
 2. Install dependencies:
@@ -32,7 +32,7 @@ bun run install-cli
 ```bash
 # Add this to your .zshrc file
 function log_command() {
-  echo "$(date +%s)|$PWD|$1" | tlogger log >/dev/null 2>&1
+  echo "$(date +%s)|$PWD|$1" | cmdlog log >/dev/null 2>&1
 }
 autoload -U add-zsh-hook
 add-zsh-hook preexec log_command
@@ -50,7 +50,7 @@ source ~/.zshrc
 To see statistics about your most used commands and hourly usage:
 
 ```bash
-tlogger stats
+cmdlog stats
 ```
 
 ### Exporting Command History
@@ -59,13 +59,13 @@ Export your command history in JSON or CSV format:
 
 ```bash
 # Export as JSON (default)
-tlogger export
+cmdlog export
 
 # Export as CSV
-tlogger export --format=csv
+cmdlog export --format=csv
 
 # Export to a file
-tlogger export --format=json --output=commands.json
+cmdlog export --format=json --output=commands.json
 ```
 
 ### Cleaning Old Commands
@@ -74,20 +74,20 @@ Remove old command entries:
 
 ```bash
 # Delete commands older than 30 days (default)
-tlogger clean
+cmdlog clean
 
 # Delete commands older than 7 days
-tlogger clean --older-than=7d
+cmdlog clean --older-than=7d
 
 # Delete commands older than 12 hours
-tlogger clean --older-than=12h
+cmdlog clean --older-than=12h
 ```
 
 ## Technical Details
 
 - Uses Bun's built-in SQLite module (`bun:sqlite`)
 - Enables WAL mode for better performance
-- Data stored in `~/.tlogger/commands.db`
+- Data stored in `~/.cmdlog/commands.db`
 
 ## License
 
