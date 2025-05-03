@@ -73,7 +73,7 @@
             50% { opacity: 0 }
         }
         .highlight-cmd {
-            color: #17d48d;
+            color: #FF4153;
             font-weight: bold;
         }
         .highlight-output {
@@ -81,7 +81,7 @@
         }
         .terminal-prompt::before {
             content: "$ ";
-            color: #17d48d;
+            color: #FF4153;
         }
         .fade-in {
             animation: fadeIn 0.5s ease-in forwards;
@@ -114,7 +114,7 @@
     <nav class="fixed w-full bg-background/90 backdrop-blur-sm z-10 border-b border-border">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-1">
-                <div class="text-semantic-6 text-2xl mr-1"><i class="fas fa-terminal"></i></div>
+                <div class="text-brand-primary-main text-2xl mr-1"><i class="fas fa-terminal"></i></div>
                 <div class="text-2xl font-bold text-semantic-1">tlogger</div>
             </div>
             <div class="hidden md:flex space-x-8">
@@ -173,7 +173,7 @@
             <div class="grid md:grid-cols-3 gap-8">
                 <div class="bg-semantic-4 p-8 rounded-lg feature-card group hover:scale-105 transform transition duration-300 border border-border">
                     <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
-                        <i class="fas fa-terminal text-semantic-6 text-2xl"></i>
+                        <i class="fas fa-terminal text-brand-primary-main text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-bold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Command History</h3>
                     <p class="text-semantic-2">Record every command across all terminal sessions, preserving context and working directory</p>
@@ -181,7 +181,7 @@
                 
                 <div class="bg-semantic-4 p-8 rounded-lg feature-card group hover:scale-105 transform transition duration-300 border border-border">
                     <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
-                        <i class="fas fa-database text-semantic-6 text-2xl"></i>
+                        <i class="fas fa-database text-brand-primary-main text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-bold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">SQLite Storage</h3>
                     <p class="text-semantic-2">Store all command history in a performant SQLite database with Bun's native integration</p>
@@ -189,7 +189,7 @@
                 
                 <div class="bg-semantic-4 p-8 rounded-lg feature-card group hover:scale-105 transform transition duration-300 border border-border">
                     <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
-                        <i class="fas fa-chart-bar text-semantic-6 text-2xl"></i>
+                        <i class="fas fa-chart-bar text-brand-primary-main text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-bold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Insights & Analytics</h3>
                     <p class="text-semantic-2">Generate statistics about your most used commands, productivity patterns, and command history</p>
@@ -197,7 +197,7 @@
                 
                 <div class="bg-semantic-4 p-8 rounded-lg feature-card group hover:scale-105 transform transition duration-300 border border-border">
                     <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
-                        <i class="fas fa-file-export text-semantic-6 text-2xl"></i>
+                        <i class="fas fa-file-export text-brand-primary-main text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-bold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Flexible Export</h3>
                     <p class="text-semantic-2">Export your command history in JSON or CSV format for external analysis or backup</p>
@@ -205,7 +205,7 @@
                 
                 <div class="bg-semantic-4 p-8 rounded-lg feature-card group hover:scale-105 transform transition duration-300 border border-border">
                     <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
-                        <i class="fas fa-bolt text-semantic-6 text-2xl"></i>
+                        <i class="fas fa-bolt text-brand-primary-main text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-bold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Lightweight & Fast</h3>
                     <p class="text-semantic-2">Built with Bun for minimal overhead and blazing-fast performance</p>
@@ -213,7 +213,7 @@
                 
                 <div class="bg-semantic-4 p-8 rounded-lg feature-card group hover:scale-105 transform transition duration-300 border border-border">
                     <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
-                        <i class="fas fa-broom text-semantic-6 text-2xl"></i>
+                        <i class="fas fa-broom text-brand-primary-main text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-bold mb-3 text-semantic-1 group-hover:text-brand-primary-main transition duration-300">Smart Cleanup</h3>
                     <p class="text-semantic-2">Easily manage database size with configurable cleanup options for old commands</p>
@@ -270,7 +270,7 @@
                 <div class="grid gap-8">
                     <div class="bg-semantic-4 p-8 rounded-lg border border-border">
                         <h3 class="text-xl font-bold mb-4 text-semantic-1 flex items-center">
-                            <span class="bg-brand-primary-main/20 text-semantic-6 w-8 h-8 rounded-full flex items-center justify-center mr-3">1</span>
+                            <span class="bg-brand-primary-main/20 text-brand-primary-main w-8 h-8 rounded-full flex items-center justify-center mr-3">1</span>
                             Clone & Install
                         </h3>
                         <div class="terminal-window">
@@ -296,7 +296,7 @@
 
                     <div class="bg-semantic-4 p-8 rounded-lg border border-border">
                         <h3 class="text-xl font-bold mb-4 text-semantic-1 flex items-center">
-                            <span class="bg-brand-primary-main/20 text-semantic-6 w-8 h-8 rounded-full flex items-center justify-center mr-3">2</span>
+                            <span class="bg-brand-primary-main/20 text-brand-primary-main w-8 h-8 rounded-full flex items-center justify-center mr-3">2</span>
                             Add to your .zshrc
                         </h3>
                         <div class="terminal-window">
@@ -324,7 +324,7 @@ add-zsh-hook preexec log_command</span></pre>
 
                     <div class="bg-semantic-4 p-8 rounded-lg border border-border">
                         <h3 class="text-xl font-bold mb-4 text-semantic-1 flex items-center">
-                            <span class="bg-brand-primary-main/20 text-semantic-6 w-8 h-8 rounded-full flex items-center justify-center mr-3">3</span>
+                            <span class="bg-brand-primary-main/20 text-brand-primary-main w-8 h-8 rounded-full flex items-center justify-center mr-3">3</span>
                             Reload your shell
                         </h3>
                         <div class="terminal-window">
@@ -556,30 +556,30 @@ Found <span class="highlight-output">12 commands</span> matching "docker"</pre>
                 </div>
                 
                 <div>
-                    <h3 class="text-xl font-bold mb-6 text-semantic-1 border-l-4 border-semantic-6 pl-4">tlogger advantages</h3>
+                    <h3 class="text-xl font-bold mb-6 text-semantic-1 border-l-4 border-brand-primary-main pl-4">tlogger advantages</h3>
                     <ul class="space-y-4">
                         <li class="flex items-start">
-                            <div class="text-semantic-6 mt-1 mr-3"><i class="fas fa-check-circle"></i></div>
+                            <div class="text-brand-primary-main mt-1 mr-3"><i class="fas fa-check-circle"></i></div>
                             <p class="text-semantic-2">Unlimited history size (constrained only by disk space)</p>
                         </li>
                         <li class="flex items-start">
-                            <div class="text-semantic-6 mt-1 mr-3"><i class="fas fa-check-circle"></i></div>
+                            <div class="text-brand-primary-main mt-1 mr-3"><i class="fas fa-check-circle"></i></div>
                             <p class="text-semantic-2">Robust SQLite database storage with WAL mode</p>
                         </li>
                         <li class="flex items-start">
-                            <div class="text-semantic-6 mt-1 mr-3"><i class="fas fa-check-circle"></i></div>
+                            <div class="text-brand-primary-main mt-1 mr-3"><i class="fas fa-check-circle"></i></div>
                             <p class="text-semantic-2">Records working directory for every command</p>
                         </li>
                         <li class="flex items-start">
-                            <div class="text-semantic-6 mt-1 mr-3"><i class="fas fa-check-circle"></i></div>
+                            <div class="text-brand-primary-main mt-1 mr-3"><i class="fas fa-check-circle"></i></div>
                             <p class="text-semantic-2">Rich analytics and usage statistics</p>
                         </li>
                         <li class="flex items-start">
-                            <div class="text-semantic-6 mt-1 mr-3"><i class="fas fa-check-circle"></i></div>
+                            <div class="text-brand-primary-main mt-1 mr-3"><i class="fas fa-check-circle"></i></div>
                             <p class="text-semantic-2">Unified history across all terminal sessions</p>
                         </li>
                         <li class="flex items-start">
-                            <div class="text-semantic-6 mt-1 mr-3"><i class="fas fa-check-circle"></i></div>
+                            <div class="text-brand-primary-main mt-1 mr-3"><i class="fas fa-check-circle"></i></div>
                             <p class="text-semantic-2">Powerful search with filtering options</p>
                         </li>
                     </ul>
@@ -607,7 +607,7 @@ Found <span class="highlight-output">12 commands</span> matching "docker"</pre>
         <div class="container mx-auto px-4 max-w-6xl">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <div class="flex items-center space-x-2 mb-6 md:mb-0">
-                    <div class="text-semantic-6 text-xl"><i class="fas fa-terminal"></i></div>
+                    <div class="text-brand-primary-main text-xl"><i class="fas fa-terminal"></i></div>
                     <div class="text-xl font-bold text-semantic-1">tlogger</div>
                 </div>
                 <div class="text-center md:text-right">
@@ -619,7 +619,7 @@ Found <span class="highlight-output">12 commands</span> matching "docker"</pre>
     </footer>
 
     <!-- Copy Notification -->
-    <div id="copyNotification" class="hidden fixed bottom-4 right-4 bg-semantic-6 text-background px-4 py-3 rounded-lg shadow-lg">
+    <div id="copyNotification" class="hidden fixed bottom-4 right-4 bg-brand-primary-main text-background px-4 py-3 rounded-lg shadow-lg">
         Copied to clipboard!
     </div>
 
