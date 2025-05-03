@@ -83,15 +83,18 @@ body {font-family: "Noto Sans", sans-serif; font-optical-sizing: auto; font-weig
         }
         
         .terminal-window {
-            border-radius: 0.5rem;
+            border-radius: 0.75rem;
             overflow: hidden;
-            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 1.5rem 0;
         }
         .terminal-header {
             display: flex;
             align-items: center;
-            padding: 0.5rem 1rem;
-            background-color: #1a1a1a;
+            padding: 0.75rem 1rem;
+            background-color: #111111;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         .terminal-button {
             width: 12px;
@@ -103,11 +106,14 @@ body {font-family: "Noto Sans", sans-serif; font-optical-sizing: auto; font-weig
         .terminal-minimize { background-color: #ffbd2e; }
         .terminal-maximize { background-color: #27c93f; }
         .terminal-body {
-body {font-family: "Noto Sans", sans-serif; font-optical-sizing: auto; font-weight: 400; font-style: normal; font-variation-settings: "wdth" 100;}
-            padding: 1rem;
-            background-color: #09090b;
-            font-family: monospace;
+            padding-left: 1.25rem;
+            padding-right: 1.25rem;
+            background-color: #000000;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
             white-space: pre-wrap;
+            border-radius: 0 0 0.75rem 0.75rem;
         }
         .cursor::after {
             content: '|';
@@ -118,16 +124,25 @@ body {font-family: "Noto Sans", sans-serif; font-optical-sizing: auto; font-weig
             50% { opacity: 0 }
         }
         .highlight-cmd {
-            color: white;
+            color: #f8f8f2;
             font-weight: normal;
         }
         .highlight-output {
-            color: #aaaaaa;
+            color: #bfbfbf;
             font-weight: normal;
         }
         .terminal-prompt::before {
             content: "$ ";
-            color: #FF4153;
+            color: #ff4d4f;
+            font-weight: bold;
+            margin-right: 0.25rem;
+        }
+        .terminal-window code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.9rem;
+        }
+        .text-f8f8f2 {
+            color: #f8f8f2;
         }
         .fade-in {
             animation: fadeIn 0.5s ease-in forwards;
@@ -233,7 +248,7 @@ body {font-family: "Noto Sans", sans-serif; font-optical-sizing: auto; font-weig
                     </div>
                     <div class="terminal-body">
                         <div class="text-semantic-1">
-                            <span class="terminal-prompt"><span class="highlight-cmd" id="typed-text"></span></span>
+                            <span class="terminal-prompt flex"><span class="highlight-cmd" id="typed-text"></span></span>
                         </div>
                     </div>
                 </div>
@@ -360,7 +375,9 @@ body {font-family: "Noto Sans", sans-serif; font-optical-sizing: auto; font-weig
                                 <div class="ml-4 text-semantic-2 text-sm">installation</div>
                             </div>
                             <div class="terminal-body">
-                                <pre class="text-white"><span class="terminal-prompt"><span class="highlight-cmd">npm install -g tlogger</span></span></pre>
+                                <code class="block text-f8f8f2">
+<span class="terminal-prompt"><span class="highlight-cmd">npm install -g tlogger</span></span>
+                                </code>
                             </div>
                         </div>
                     </div>
@@ -378,12 +395,12 @@ body {font-family: "Noto Sans", sans-serif; font-optical-sizing: auto; font-weig
                                 <div class="ml-4 text-semantic-2 text-sm">~/.zshrc</div>
                             </div>
                             <div class="terminal-body">
-                                <pre class="text-white"># Add this to your .zshrc file
+                                <code class="block text-f8f8f2"># Add this to your .zshrc file
 <span class="highlight-cmd">function log_command() {
   echo "$(date +%s)|$PWD|$1" | tlogger log >/dev/null 2>&1
 }
 autoload -U add-zsh-hook
-add-zsh-hook preexec log_command</span></pre>
+add-zsh-hook preexec log_command</span></code>
                             </div>
                         </div>
                     </div>
@@ -401,8 +418,8 @@ add-zsh-hook preexec log_command</span></pre>
                                 <div class="ml-4 text-semantic-2 text-sm">terminal</div>
                             </div>
                             <div class="terminal-body">
-                                <pre class="text-white"><span class="terminal-prompt"><span class="highlight-cmd">source ~/.zshrc</span></span></pre>
-                                <p class="mt-3 text-white">That's it! tlogger is now recording your commands.</p>
+                                <code class="block text-f8f8f2"><span class="terminal-prompt"><span class="highlight-cmd">source ~/.zshrc</span></span></code>
+                                <p class="mt-3 text-f8f8f2">That's it! tlogger is now recording your commands.</p>
                             </div>
                         </div>
                     </div>
@@ -430,7 +447,7 @@ add-zsh-hook preexec log_command</span></pre>
                             <div class="ml-4 text-semantic-2 text-sm">Command</div>
                         </div>
                         <div class="terminal-body">
-                            <pre class="text-white"><span class="terminal-prompt"><span class="highlight-cmd">tlogger stats</span></span></pre>
+                            <code class="block text-f8f8f2"><span class="terminal-prompt"><span class="highlight-cmd">tlogger stats</span></span></code>
                         </div>
                     </div>
                     <div class="terminal-window">
@@ -441,7 +458,7 @@ add-zsh-hook preexec log_command</span></pre>
                             <div class="ml-4 text-semantic-2 text-sm">Output</div>
                         </div>
                         <div class="terminal-body">
-                            <pre class="text-white">Most Used Commands:
+                            <code class="block text-f8f8f2">Most Used Commands:
 <span class="highlight-output">  git commit -m : 143 times
   npm run dev   : 89 times
   ls            : 76 times
@@ -456,7 +473,7 @@ Command Activity by Hour:
 
 Total Commands: <span class="highlight-output">1,243</span>
 First Command: <span class="highlight-output">2023-06-12</span>
-Database Size: <span class="highlight-output">2.4 MB</span></pre>
+Database Size: <span class="highlight-output">2.4 MB</span></code>
                         </div>
                     </div>
                 </div>
@@ -471,7 +488,7 @@ Database Size: <span class="highlight-output">2.4 MB</span></pre>
                             <div class="ml-4 text-semantic-2 text-sm">Command</div>
                         </div>
                         <div class="terminal-body">
-                            <pre class="text-white"><span class="terminal-prompt"><span class="highlight-cmd">tlogger export --format=json --output=commands.json</span></span></pre>
+                            <code class="block text-f8f8f2"><span class="terminal-prompt"><span class="highlight-cmd">tlogger export --format=json --output=commands.json</span></span></code>
                         </div>
                     </div>
                     <div class="terminal-window">
@@ -482,7 +499,7 @@ Database Size: <span class="highlight-output">2.4 MB</span></pre>
                             <div class="ml-4 text-semantic-2 text-sm">Output</div>
                         </div>
                         <div class="terminal-body">
-                            <pre class="text-white">Exporting command history...
+                            <code class="block text-f8f8f2">Exporting command history...
 <span class="highlight-output">[
   {
     "id": 1,
@@ -499,7 +516,7 @@ Database Size: <span class="highlight-output">2.4 MB</span></pre>
   ...
 ]</span>
 
-Export complete: <span class="highlight-output">1,243 commands</span> exported to <span class="highlight-output">commands.json</span></pre>
+Export complete: <span class="highlight-output">1,243 commands</span> exported to <span class="highlight-output">commands.json</span></code>
                         </div>
                     </div>
                 </div>
@@ -514,7 +531,7 @@ Export complete: <span class="highlight-output">1,243 commands</span> exported t
                             <div class="ml-4 text-semantic-2 text-sm">Command</div>
                         </div>
                         <div class="terminal-body">
-                            <pre class="text-white"><span class="terminal-prompt"><span class="highlight-cmd">tlogger clean --older-than=30d</span></span></pre>
+                            <code class="block text-f8f8f2"><span class="terminal-prompt"><span class="highlight-cmd">tlogger clean --older-than=30d</span></span></code>
                         </div>
                     </div>
                     <div class="terminal-window">
@@ -525,7 +542,7 @@ Export complete: <span class="highlight-output">1,243 commands</span> exported t
                             <div class="ml-4 text-semantic-2 text-sm">Output</div>
                         </div>
                         <div class="terminal-body">
-                            <pre class="text-white">Cleaning commands older than 30 days...
+                            <code class="block text-f8f8f2">Cleaning commands older than 30 days...
 
 Commands before cleanup: <span class="highlight-output">1,243</span>
 Commands deleted: <span class="highlight-output">213</span>
@@ -534,7 +551,7 @@ Commands remaining: <span class="highlight-output">1,030</span>
 Database size before: <span class="highlight-output">2.4 MB</span>
 Database size after: <span class="highlight-output">2.1 MB</span>
 
-Cleanup complete!</pre>
+Cleanup complete!</code>
                         </div>
                     </div>
                 </div>
@@ -549,7 +566,7 @@ Cleanup complete!</pre>
                             <div class="ml-4 text-semantic-2 text-sm">Command</div>
                         </div>
                         <div class="terminal-body">
-                            <pre class="text-white"><span class="terminal-prompt"><span class="highlight-cmd">tlogger search "docker"</span></span></pre>
+                            <code class="block text-f8f8f2"><span class="terminal-prompt"><span class="highlight-cmd">tlogger search "docker"</span></span></code>
                         </div>
                     </div>
                     <div class="terminal-window">
@@ -560,7 +577,7 @@ Cleanup complete!</pre>
                             <div class="ml-4 text-semantic-2 text-sm">Output</div>
                         </div>
                         <div class="terminal-body">
-                            <pre class="text-white">Searching for commands containing "<span class="highlight-output">docker</span>"...
+                            <code class="block text-f8f8f2">Searching for commands containing "<span class="highlight-output">docker</span>"...
 
 <span class="highlight-output">2023-08-12 09:45:23</span> [<span class="highlight-cmd">/Users/username/Projects/app</span>]
   <span class="highlight-cmd">docker-compose up -d</span>
@@ -574,7 +591,7 @@ Cleanup complete!</pre>
 <span class="highlight-output">2023-08-15 16:45:32</span> [<span class="highlight-cmd">/Users/username/Projects/app</span>]
   <span class="highlight-cmd">docker-compose down</span>
 
-Found <span class="highlight-output">12 commands</span> matching "docker"</pre>
+Found <span class="highlight-output">12 commands</span> matching "docker"</code>
                         </div>
                     </div>
                 </div>
