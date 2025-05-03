@@ -1,64 +1,94 @@
-# my-cli
+# tlogger
+
+A terminal command logger that records every command across your shell sessions directly into a SQLite database.
 
 ## Features
 
-- List of features here
+- Records every command you run in your terminal
+- Stores data in SQLite database (no text files)
+- Uses Bun's high-performance native SQLite integration
+- Provides command-line utilities for statistics, export, and cleanup
+- Easy ZSH integration
 
 ## Installation
 
+1. Clone this repository:
 ```bash
-npm install -g my-cli
+git clone https://github.com/yourusername/tlogger.git
+cd tlogger
+```
+
+2. Install dependencies:
+```bash
+bun install
+```
+
+3. Install the CLI globally:
+```bash
+bun run install-cli
+```
+
+4. Add the ZSH hook to your `.zshrc` file:
+```bash
+# Add this to your .zshrc file
+function log_command() {
+  echo "$(date +%s)|$PWD|$1" | tlogger log &
+}
+autoload -U add-zsh-hook
+add-zsh-hook preexec log_command
+```
+
+5. Restart your shell or source your `.zshrc`:
+```bash
+source ~/.zshrc
 ```
 
 ## Usage
 
+### Viewing Command Statistics
+
+To see statistics about your most used commands and hourly usage:
+
 ```bash
-my-cli [options]
+tlogger stats
 ```
 
-### Options
+### Exporting Command History
 
+Export your command history in JSON or CSV format:
 
-### Examples
-
-This is a example:
 ```bash
-my-cli
+# Export as JSON (default)
+tlogger export
+
+# Export as CSV
+tlogger export --format=csv
+
+# Export to a file
+tlogger export --format=json --output=commands.json
 ```
 
-## Contributing
+### Cleaning Old Commands
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Remove old command entries:
+
+```bash
+# Delete commands older than 30 days (default)
+tlogger clean
+
+# Delete commands older than 7 days
+tlogger clean --older-than=7d
+
+# Delete commands older than 12 hours
+tlogger clean --older-than=12h
+```
+
+## Technical Details
+
+- Uses Bun's built-in SQLite module (`bun:sqlite`)
+- Enables WAL mode for better performance
+- Data stored in `~/.tlogger/commands.db`
 
 ## License
 
-This project is licensed under the Apache License, Version 2.0.
-
-See the [LICENSE](LICENSE) file for the full license text.
-
-## Versioning and Release Process
-
-This project uses [semantic-release](https://github.com/semantic-release/semantic-release) to automate version management and package publishing. The release process is triggered on every push to the `main` branch and follows the Angular Commit Message Convention.
-
-### Commit Message Convention
-
-We follow the [Angular Commit Message Convention](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-format). Example:
-
-```
-feat(cli): add new option for output format
-fix(core): handle empty files gracefully
-```
-
-Breaking changes should include `BREAKING CHANGE:` in the commit body or a `!` after the type/scope.
-
-### Manual Release
-
-To trigger a release manually:
-
-1. Ensure you're on the main branch
-2. Run:
-```bash
-npx semantic-release
-```
-
-See `.releaserc.json` for configuration details. 
+[Apache License 2.0](LICENSE) 
