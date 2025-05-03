@@ -2,9 +2,10 @@
 import { Command } from 'commander';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { logCommand, getTopCommands, getCommandsByHour, getAllCommands, cleanOldCommands } from './cli/db.js';
+import { logCommand, getTopCommands, getCommandsByHour, getAllCommands, cleanOldCommands, searchCommands } from './cli/db.js';
 import chalk from 'chalk';
 import { writeFileSync } from 'fs';
+import { format } from 'date-fns';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -204,6 +205,53 @@ program
       console.log(`Successfully cleaned ${deleted} commands older than ${options.olderThan || '30d'}`);
     } catch (error) {
       console.error('Failed to clean old commands:', error);
+      process.exit(1);
+    }
+  });
+
+// Add search command from the previously separate CLI file
+program
+  .command('search <query>')
+  .description('Search for commands containing the specified text')
+  .option('-a, --all', 'Display all matching results instead of just the first 10')
+  .action((query, options) => {
+    console.log(chalk.bold(`Searching for commands containing "${query}"...\n`));
+    
+    try {
+      const allResults = searchCommands(query);
+      
+      if (allResults.length === 0) {
+        console.log(chalk.yellow('No matching commands found.'));
+        return;
+      }
+      
+      // Determine how many results to display
+      const displayResults = options.all ? allResults : allResults.slice(0, 10);
+      
+      // Format and display the results
+      displayResults.forEach(result => {
+        const date = format(new Date(result.timestamp * 1000), 'yyyy-MM-dd HH:mm:ss');
+        
+        // Highlight the matching part of the command
+        let highlightedCommand = result.command;
+        if (query) {
+          const regex = new RegExp(query, 'gi');
+          highlightedCommand = result.command.replace(regex, match => chalk.bold.yellow(match));
+        }
+        
+        console.log(`${chalk.blue(date)} ${chalk.gray('[' + result.directory + ']')}`);
+        console.log(`  ${highlightedCommand}`);
+        console.log();
+      });
+      
+      // Show pagination info if applicable
+      if (!options.all && allResults.length > 10) {
+        console.log(chalk.dim(`Showing 10 of ${allResults.length} results. Use --all flag to show all results.`));
+      }
+      
+      console.log(chalk.bold(`Found ${allResults.length} command${allResults.length === 1 ? '' : 's'} matching "${query}"`));
+    } catch (error) {
+      console.error(chalk.red('Error searching commands:'), error);
       process.exit(1);
     }
   });

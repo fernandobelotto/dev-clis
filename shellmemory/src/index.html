@@ -118,11 +118,12 @@ body {font-family: "Noto Sans", sans-serif; font-optical-sizing: auto; font-weig
             50% { opacity: 0 }
         }
         .highlight-cmd {
-            color: #FF4153;
-            font-weight: bold;
+            color: white;
+            font-weight: normal;
         }
         .highlight-output {
             color: #aaaaaa;
+            font-weight: normal;
         }
         .terminal-prompt::before {
             content: "$ ";
@@ -160,6 +161,30 @@ body {font-family: "Noto Sans", sans-serif; font-optical-sizing: auto; font-weig
         .animate-on-scroll.visible {
             opacity: 1;
             transform: translateY(0);
+        }
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: rgba(26, 26, 26, 0.7);
+            color: #f0f8fb;
+            border: 1px solid rgba(240, 248, 251, 0.2);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            backdrop-filter: blur(2px);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            z-index: 10;
+        }
+        .copy-button:hover {
+            background-color: rgba(255, 65, 83, 0.2);
+            border-color: rgba(255, 65, 83, 0.4);
+        }
+        .copy-button i {
+            font-size: 0.7rem;
         }
     </style>
 </head>
@@ -325,7 +350,7 @@ body {font-family: "Noto Sans", sans-serif; font-optical-sizing: auto; font-weig
                     <div class="bg-semantic-4 p-8 rounded-lg border border-border animate-on-scroll">
                         <h3 class="text-xl font-bold mb-4 text-semantic-1 flex items-center">
                             <span class="bg-brand-primary-main/20 text-brand-primary-main w-8 h-8 rounded-full flex items-center justify-center mr-3">1</span>
-                            Clone & Install
+                            Install from NPM
                         </h3>
                         <div class="terminal-window">
                             <div class="terminal-header">
@@ -334,16 +359,8 @@ body {font-family: "Noto Sans", sans-serif; font-optical-sizing: auto; font-weig
                                 <div class="terminal-button terminal-maximize"></div>
                                 <div class="ml-4 text-semantic-2 text-sm">installation</div>
                             </div>
-                            <div class="terminal-body relative">
-                                <div class="flex justify-between items-center absolute top-2 right-2">
-                                    <button id="copyBtn" class="bg-semantic-4 hover:bg-semantic-neutral text-semantic-1 px-3 py-1 rounded text-xs transition duration-200">
-                                        <i class="far fa-copy mr-1"></i>Copy
-                                    </button>
-                                </div>
-                                <pre id="installCommand" class="text-semantic-2"><span class="terminal-prompt"><span class="highlight-cmd">git clone https://github.com/yourusername/tlogger.git</span></span>
-<span class="terminal-prompt"><span class="highlight-cmd">cd tlogger</span></span>
-<span class="terminal-prompt"><span class="highlight-cmd">bun install</span></span>
-<span class="terminal-prompt"><span class="highlight-cmd">bun run install-cli</span></span></pre>
+                            <div class="terminal-body">
+                                <pre class="text-white"><span class="terminal-prompt"><span class="highlight-cmd">npm install -g tlogger</span></span></pre>
                             </div>
                         </div>
                     </div>
@@ -360,13 +377,8 @@ body {font-family: "Noto Sans", sans-serif; font-optical-sizing: auto; font-weig
                                 <div class="terminal-button terminal-maximize"></div>
                                 <div class="ml-4 text-semantic-2 text-sm">~/.zshrc</div>
                             </div>
-                            <div class="terminal-body relative">
-                                <div class="flex justify-between items-center absolute top-2 right-2">
-                                    <button id="copyZshBtn" class="bg-semantic-4 hover:bg-semantic-neutral text-semantic-1 px-3 py-1 rounded text-xs transition duration-200">
-                                        <i class="far fa-copy mr-1"></i>Copy
-                                    </button>
-                                </div>
-                                <pre id="zshCommand" class="text-semantic-2"># Add this to your .zshrc file
+                            <div class="terminal-body">
+                                <pre class="text-white"># Add this to your .zshrc file
 <span class="highlight-cmd">function log_command() {
   echo "$(date +%s)|$PWD|$1" | tlogger log >/dev/null 2>&1
 }
@@ -389,8 +401,8 @@ add-zsh-hook preexec log_command</span></pre>
                                 <div class="ml-4 text-semantic-2 text-sm">terminal</div>
                             </div>
                             <div class="terminal-body">
-                                <pre class="text-semantic-2"><span class="terminal-prompt"><span class="highlight-cmd">source ~/.zshrc</span></span></pre>
-                                <p class="mt-3 text-semantic-2">That's it! tlogger is now recording your commands.</p>
+                                <pre class="text-white"><span class="terminal-prompt"><span class="highlight-cmd">source ~/.zshrc</span></span></pre>
+                                <p class="mt-3 text-white">That's it! tlogger is now recording your commands.</p>
                             </div>
                         </div>
                     </div>
@@ -418,7 +430,7 @@ add-zsh-hook preexec log_command</span></pre>
                             <div class="ml-4 text-semantic-2 text-sm">Command</div>
                         </div>
                         <div class="terminal-body">
-                            <pre class="text-semantic-2"><span class="terminal-prompt"><span class="highlight-cmd">tlogger stats</span></span></pre>
+                            <pre class="text-white"><span class="terminal-prompt"><span class="highlight-cmd">tlogger stats</span></span></pre>
                         </div>
                     </div>
                     <div class="terminal-window">
@@ -429,7 +441,7 @@ add-zsh-hook preexec log_command</span></pre>
                             <div class="ml-4 text-semantic-2 text-sm">Output</div>
                         </div>
                         <div class="terminal-body">
-                            <pre class="text-semantic-2">Most Used Commands:
+                            <pre class="text-white">Most Used Commands:
 <span class="highlight-output">  git commit -m : 143 times
   npm run dev   : 89 times
   ls            : 76 times
@@ -459,7 +471,7 @@ Database Size: <span class="highlight-output">2.4 MB</span></pre>
                             <div class="ml-4 text-semantic-2 text-sm">Command</div>
                         </div>
                         <div class="terminal-body">
-                            <pre class="text-semantic-2"><span class="terminal-prompt"><span class="highlight-cmd">tlogger export --format=json --output=commands.json</span></span></pre>
+                            <pre class="text-white"><span class="terminal-prompt"><span class="highlight-cmd">tlogger export --format=json --output=commands.json</span></span></pre>
                         </div>
                     </div>
                     <div class="terminal-window">
@@ -470,7 +482,7 @@ Database Size: <span class="highlight-output">2.4 MB</span></pre>
                             <div class="ml-4 text-semantic-2 text-sm">Output</div>
                         </div>
                         <div class="terminal-body">
-                            <pre class="text-semantic-2">Exporting command history...
+                            <pre class="text-white">Exporting command history...
 <span class="highlight-output">[
   {
     "id": 1,
@@ -502,7 +514,7 @@ Export complete: <span class="highlight-output">1,243 commands</span> exported t
                             <div class="ml-4 text-semantic-2 text-sm">Command</div>
                         </div>
                         <div class="terminal-body">
-                            <pre class="text-semantic-2"><span class="terminal-prompt"><span class="highlight-cmd">tlogger clean --older-than=30d</span></span></pre>
+                            <pre class="text-white"><span class="terminal-prompt"><span class="highlight-cmd">tlogger clean --older-than=30d</span></span></pre>
                         </div>
                     </div>
                     <div class="terminal-window">
@@ -513,7 +525,7 @@ Export complete: <span class="highlight-output">1,243 commands</span> exported t
                             <div class="ml-4 text-semantic-2 text-sm">Output</div>
                         </div>
                         <div class="terminal-body">
-                            <pre class="text-semantic-2">Cleaning commands older than 30 days...
+                            <pre class="text-white">Cleaning commands older than 30 days...
 
 Commands before cleanup: <span class="highlight-output">1,243</span>
 Commands deleted: <span class="highlight-output">213</span>
@@ -537,7 +549,7 @@ Cleanup complete!</pre>
                             <div class="ml-4 text-semantic-2 text-sm">Command</div>
                         </div>
                         <div class="terminal-body">
-                            <pre class="text-semantic-2"><span class="terminal-prompt"><span class="highlight-cmd">tlogger search "docker"</span></span></pre>
+                            <pre class="text-white"><span class="terminal-prompt"><span class="highlight-cmd">tlogger search "docker"</span></span></pre>
                         </div>
                     </div>
                     <div class="terminal-window">
@@ -548,7 +560,7 @@ Cleanup complete!</pre>
                             <div class="ml-4 text-semantic-2 text-sm">Output</div>
                         </div>
                         <div class="terminal-body">
-                            <pre class="text-semantic-2">Searching for commands containing "<span class="highlight-output">docker</span>"...
+                            <pre class="text-white">Searching for commands containing "<span class="highlight-output">docker</span>"...
 
 <span class="highlight-output">2023-08-12 09:45:23</span> [<span class="highlight-cmd">/Users/username/Projects/app</span>]
   <span class="highlight-cmd">docker-compose up -d</span>
@@ -672,11 +684,6 @@ Found <span class="highlight-output">12 commands</span> matching "docker"</pre>
         </div>
     </footer>
 
-    <!-- Copy Notification -->
-    <div id="copyNotification" class="hidden fixed bottom-4 right-4 bg-brand-primary-main text-background px-4 py-3 rounded-lg shadow-lg">
-        Copied to clipboard!
-    </div>
-
     <script>
         // GSAP Animations
         document.addEventListener('DOMContentLoaded', () => {
@@ -724,51 +731,6 @@ Found <span class="highlight-output">12 commands</span> matching "docker"</pre>
             document.querySelectorAll('.animate-on-scroll').forEach(element => {
                 observer.observe(element);
             });
-
-            // Copy button functionality for install command
-            const copyBtn = document.getElementById('copyBtn');
-            const installCommand = document.getElementById('installCommand');
-            const copyNotification = document.getElementById('copyNotification');
-
-            copyBtn.addEventListener('click', () => {
-                navigator.clipboard.writeText(installCommand.textContent.replace(/\$ /g, ''));
-                showCopyNotification();
-            });
-
-            // Copy button functionality for ZSH command
-            const copyZshBtn = document.getElementById('copyZshBtn');
-            const zshCommand = document.getElementById('zshCommand');
-
-            copyZshBtn.addEventListener('click', () => {
-                navigator.clipboard.writeText(zshCommand.textContent);
-                showCopyNotification();
-            });
-
-            function showCopyNotification() {
-                // Show notification
-                copyNotification.classList.remove('hidden');
-                
-                // Hide notification after 2 seconds
-                gsap.to(copyNotification, {
-                    duration: 0.3,
-                    opacity: 1,
-                    y: -10,
-                    ease: 'power2.out',
-                    onComplete: () => {
-                        setTimeout(() => {
-                            gsap.to(copyNotification, {
-                                duration: 0.3,
-                                opacity: 0,
-                                y: 0,
-                                ease: 'power2.in',
-                                onComplete: () => {
-                                    copyNotification.classList.add('hidden');
-                                }
-                            });
-                        }, 2000);
-                    }
-                });
-            }
 
             // Smooth scroll for anchor links
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {

@@ -15,6 +15,7 @@
     "stats": "bun src/cli/stats.ts",
     "export": "bun src/cli/export.ts",
     "clean": "bun src/cli/clean.ts",
+    "search": "bun src/cli/search.ts",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
     "install-cli": "bun run build && chmod +x ./dist/index.js && bun link"
@@ -24,7 +25,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "chalk": "5.4.1",
-    "commander": "^11.1.0"
+    "commander": "^11.1.0",
+    "date-fns": "^4.1.0"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",

@@ -103,4 +103,14 @@ export function cleanOldCommands(olderThanTimestamp: number): number {
   } finally {
     db.close();
   }
+}
+
+export function searchCommands(query: string): { id: number; timestamp: number; directory: string; command: string }[] {
+  const db = getConnection();
+  try {
+    const stmt = db.query('SELECT * FROM commands WHERE command LIKE ? ORDER BY timestamp DESC');
+    return stmt.all(`%${query}%`) as { id: number; timestamp: number; directory: string; command: string }[];
+  } finally {
+    db.close();
+  }
 } 
