@@ -6,6 +6,7 @@
     <title>tlogger - Terminal Command Logger</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -107,6 +108,15 @@
         .nav-link:hover::after {
             width: 100%;
         }
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body class="bg-background text-foreground">
@@ -165,13 +175,13 @@
     <!-- Features Section -->
     <section id="features" class="py-20 border-t border-border">
         <div class="container mx-auto px-4 max-w-6xl">
-            <div class="text-center mb-16">
+            <div class="text-center mb-16 animate-on-scroll">
                 <h2 class="text-3xl lg:text-4xl font-bold mb-4 text-semantic-1 feature-title">Key Features</h2>
                 <p class="text-semantic-2 max-w-2xl mx-auto">tlogger combines a simple setup with powerful features to help you track and analyze your terminal usage</p>
             </div>
 
             <div class="grid md:grid-cols-3 gap-8">
-                <div class="bg-semantic-4 p-8 rounded-lg feature-card group hover:scale-105 transform transition duration-300 border border-border">
+                <div class="bg-semantic-4 p-8 rounded-lg feature-card animate-on-scroll border border-border">
                     <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
                         <i class="fas fa-terminal text-brand-primary-main text-2xl"></i>
                     </div>
@@ -179,7 +189,7 @@
                     <p class="text-semantic-2">Record every command across all terminal sessions, preserving context and working directory</p>
                 </div>
                 
-                <div class="bg-semantic-4 p-8 rounded-lg feature-card group hover:scale-105 transform transition duration-300 border border-border">
+                <div class="bg-semantic-4 p-8 rounded-lg feature-card animate-on-scroll border border-border" style="transition-delay: 100ms;">
                     <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
                         <i class="fas fa-database text-brand-primary-main text-2xl"></i>
                     </div>
@@ -187,7 +197,7 @@
                     <p class="text-semantic-2">Store all command history in a performant SQLite database with Bun's native integration</p>
                 </div>
                 
-                <div class="bg-semantic-4 p-8 rounded-lg feature-card group hover:scale-105 transform transition duration-300 border border-border">
+                <div class="bg-semantic-4 p-8 rounded-lg feature-card animate-on-scroll border border-border" style="transition-delay: 200ms;">
                     <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
                         <i class="fas fa-chart-bar text-brand-primary-main text-2xl"></i>
                     </div>
@@ -195,7 +205,7 @@
                     <p class="text-semantic-2">Generate statistics about your most used commands, productivity patterns, and command history</p>
                 </div>
                 
-                <div class="bg-semantic-4 p-8 rounded-lg feature-card group hover:scale-105 transform transition duration-300 border border-border">
+                <div class="bg-semantic-4 p-8 rounded-lg feature-card animate-on-scroll border border-border" style="transition-delay: 300ms;">
                     <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
                         <i class="fas fa-file-export text-brand-primary-main text-2xl"></i>
                     </div>
@@ -203,7 +213,7 @@
                     <p class="text-semantic-2">Export your command history in JSON or CSV format for external analysis or backup</p>
                 </div>
                 
-                <div class="bg-semantic-4 p-8 rounded-lg feature-card group hover:scale-105 transform transition duration-300 border border-border">
+                <div class="bg-semantic-4 p-8 rounded-lg feature-card animate-on-scroll border border-border" style="transition-delay: 400ms;">
                     <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
                         <i class="fas fa-bolt text-brand-primary-main text-2xl"></i>
                     </div>
@@ -211,7 +221,7 @@
                     <p class="text-semantic-2">Built with Bun for minimal overhead and blazing-fast performance</p>
                 </div>
                 
-                <div class="bg-semantic-4 p-8 rounded-lg feature-card group hover:scale-105 transform transition duration-300 border border-border">
+                <div class="bg-semantic-4 p-8 rounded-lg feature-card animate-on-scroll border border-border" style="transition-delay: 500ms;">
                     <div class="rounded-full bg-brand-primary-main/20 w-14 h-14 flex items-center justify-center mb-6">
                         <i class="fas fa-broom text-brand-primary-main text-2xl"></i>
                     </div>
@@ -225,13 +235,13 @@
     <!-- How It Works Section -->
     <section id="how-it-works" class="py-20 bg-semantic-4/30 border-y border-border">
         <div class="container mx-auto px-4 max-w-6xl">
-            <div class="text-center mb-16">
+            <div class="text-center mb-16 animate-on-scroll">
                 <h2 class="text-3xl lg:text-4xl font-bold mb-4 text-semantic-1">How It Works</h2>
                 <p class="text-semantic-2 max-w-2xl mx-auto">tlogger integrates seamlessly with your shell to capture and organize your command history</p>
             </div>
 
             <div class="grid md:grid-cols-3 gap-8 text-center">
-                <div class="fade-in" style="animation-delay: 0.1s">
+                <div class="fade-in animate-on-scroll" style="animation-delay: 0.1s">
                     <div class="bg-semantic-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 border border-border">
                         <span class="text-brand-primary-main text-2xl font-bold">1</span>
                     </div>
@@ -239,7 +249,7 @@
                     <p class="text-semantic-2">A simple hook added to your .zshrc captures each command you run</p>
                 </div>
                 
-                <div class="fade-in" style="animation-delay: 0.3s">
+                <div class="fade-in animate-on-scroll" style="animation-delay: 0.3s; transition-delay: 100ms;">
                     <div class="bg-semantic-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 border border-border">
                         <span class="text-brand-primary-main text-2xl font-bold">2</span>
                     </div>
@@ -247,7 +257,7 @@
                     <p class="text-semantic-2">Commands are stored in a SQLite database with timestamp and directory context</p>
                 </div>
                 
-                <div class="fade-in" style="animation-delay: 0.5s">
+                <div class="fade-in animate-on-scroll" style="animation-delay: 0.5s; transition-delay: 200ms;">
                     <div class="bg-semantic-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 border border-border">
                         <span class="text-brand-primary-main text-2xl font-bold">3</span>
                     </div>
@@ -261,14 +271,14 @@
     <!-- Installation Section -->
     <section id="install" class="py-20">
         <div class="container mx-auto px-4 max-w-6xl">
-            <div class="text-center mb-16">
+            <div class="text-center mb-16 animate-on-scroll">
                 <h2 class="text-3xl lg:text-4xl font-bold mb-4 text-semantic-1 install-title">Installation</h2>
                 <p class="text-semantic-2 max-w-2xl mx-auto">Get started with tlogger in just a few steps</p>
             </div>
 
             <div class="max-w-3xl mx-auto">
                 <div class="grid gap-8">
-                    <div class="bg-semantic-4 p-8 rounded-lg border border-border">
+                    <div class="bg-semantic-4 p-8 rounded-lg border border-border animate-on-scroll">
                         <h3 class="text-xl font-bold mb-4 text-semantic-1 flex items-center">
                             <span class="bg-brand-primary-main/20 text-brand-primary-main w-8 h-8 rounded-full flex items-center justify-center mr-3">1</span>
                             Clone & Install
@@ -294,7 +304,7 @@
                         </div>
                     </div>
 
-                    <div class="bg-semantic-4 p-8 rounded-lg border border-border">
+                    <div class="bg-semantic-4 p-8 rounded-lg border border-border animate-on-scroll" style="transition-delay: 100ms;">
                         <h3 class="text-xl font-bold mb-4 text-semantic-1 flex items-center">
                             <span class="bg-brand-primary-main/20 text-brand-primary-main w-8 h-8 rounded-full flex items-center justify-center mr-3">2</span>
                             Add to your .zshrc
@@ -322,7 +332,7 @@ add-zsh-hook preexec log_command</span></pre>
                         </div>
                     </div>
 
-                    <div class="bg-semantic-4 p-8 rounded-lg border border-border">
+                    <div class="bg-semantic-4 p-8 rounded-lg border border-border animate-on-scroll" style="transition-delay: 200ms;">
                         <h3 class="text-xl font-bold mb-4 text-semantic-1 flex items-center">
                             <span class="bg-brand-primary-main/20 text-brand-primary-main w-8 h-8 rounded-full flex items-center justify-center mr-3">3</span>
                             Reload your shell
@@ -348,13 +358,13 @@ add-zsh-hook preexec log_command</span></pre>
     <!-- Usage Examples Section -->
     <section id="usage" class="py-20 bg-semantic-4/30 border-y border-border">
         <div class="container mx-auto px-4 max-w-6xl">
-            <div class="text-center mb-16">
+            <div class="text-center mb-16 animate-on-scroll">
                 <h2 class="text-3xl lg:text-4xl font-bold mb-4 text-semantic-1 usage-title">Usage Examples</h2>
                 <p class="text-semantic-2 max-w-2xl mx-auto">Simple commands to access your command history data</p>
             </div>
 
             <div class="grid md:grid-cols-2 gap-8">
-                <div class="bg-semantic-4 p-8 rounded-lg border border-border">
+                <div class="bg-semantic-4 p-8 rounded-lg border border-border animate-on-scroll">
                     <h3 class="text-xl font-bold mb-4 text-semantic-1">View Command Statistics</h3>
                     <div class="terminal-window mb-4">
                         <div class="terminal-header">
@@ -395,7 +405,7 @@ Database Size: <span class="highlight-output">2.4 MB</span></pre>
                     </div>
                 </div>
 
-                <div class="bg-semantic-4 p-8 rounded-lg border border-border">
+                <div class="bg-semantic-4 p-8 rounded-lg border border-border animate-on-scroll" style="transition-delay: 100ms;">
                     <h3 class="text-xl font-bold mb-4 text-semantic-1">Export Command History</h3>
                     <div class="terminal-window mb-4">
                         <div class="terminal-header">
@@ -438,7 +448,7 @@ Export complete: <span class="highlight-output">1,243 commands</span> exported t
                     </div>
                 </div>
 
-                <div class="bg-semantic-4 p-8 rounded-lg border border-border">
+                <div class="bg-semantic-4 p-8 rounded-lg border border-border animate-on-scroll" style="transition-delay: 200ms;">
                     <h3 class="text-xl font-bold mb-4 text-semantic-1">Clean Old Commands</h3>
                     <div class="terminal-window mb-4">
                         <div class="terminal-header">
@@ -473,7 +483,7 @@ Cleanup complete!</pre>
                     </div>
                 </div>
 
-                <div class="bg-semantic-4 p-8 rounded-lg border border-border">
+                <div class="bg-semantic-4 p-8 rounded-lg border border-border animate-on-scroll" style="transition-delay: 300ms;">
                     <h3 class="text-xl font-bold mb-4 text-semantic-1">Search Command History</h3>
                     <div class="terminal-window mb-4">
                         <div class="terminal-header">
@@ -519,13 +529,13 @@ Found <span class="highlight-output">12 commands</span> matching "docker"</pre>
     <!-- Why tlogger Section -->
     <section id="examples" class="py-20">
         <div class="container mx-auto px-4 max-w-6xl">
-            <div class="text-center mb-16">
+            <div class="text-center mb-16 animate-on-scroll">
                 <h2 class="text-3xl lg:text-4xl font-bold mb-4 text-semantic-1">Why tlogger?</h2>
                 <p class="text-semantic-2 max-w-2xl mx-auto">tlogger offers significant benefits over traditional shell history</p>
             </div>
 
             <div class="grid md:grid-cols-2 gap-12">
-                <div>
+                <div class="animate-on-scroll">
                     <h3 class="text-xl font-bold mb-6 text-semantic-1 border-l-4 border-brand-primary-main pl-4">Standard shell history</h3>
                     <ul class="space-y-4">
                         <li class="flex items-start">
@@ -555,7 +565,7 @@ Found <span class="highlight-output">12 commands</span> matching "docker"</pre>
                     </ul>
                 </div>
                 
-                <div>
+                <div class="animate-on-scroll" style="transition-delay: 100ms;">
                     <h3 class="text-xl font-bold mb-6 text-semantic-1 border-l-4 border-brand-primary-main pl-4">tlogger advantages</h3>
                     <ul class="space-y-4">
                         <li class="flex items-start">
@@ -590,7 +600,7 @@ Found <span class="highlight-output">12 commands</span> matching "docker"</pre>
 
     <!-- CTA Section -->
     <section class="py-16 bg-brand-primary-main/10 border-y border-border">
-        <div class="container mx-auto px-4 max-w-4xl text-center">
+        <div class="container mx-auto px-4 max-w-4xl text-center animate-on-scroll">
             <h2 class="text-3xl lg:text-4xl font-bold mb-6 text-semantic-1">Ready to start logging?</h2>
             <p class="text-semantic-2 mb-8 max-w-2xl mx-auto">Never lose track of your command history again. Install tlogger today and take control of your terminal.</p>
             <a href="#install" class="inline-block bg-brand-primary-main hover:bg-brand-primary-dark text-white px-8 py-4 rounded-md text-lg font-medium transition duration-200 transform hover:scale-105">
@@ -626,6 +636,9 @@ Found <span class="highlight-output">12 commands</span> matching "docker"</pre>
     <script>
         // GSAP Animations
         document.addEventListener('DOMContentLoaded', () => {
+            // Register ScrollTrigger plugin
+            gsap.registerPlugin(ScrollTrigger);
+            
             // Typed.js animation for terminal
             new Typed('#typed-text', {
                 strings: [
@@ -650,32 +663,22 @@ Found <span class="highlight-output">12 commands</span> matching "docker"</pre>
                 ease: 'power3.out'
             });
 
-            // Animate section titles on scroll
-            const titles = document.querySelectorAll('h2');
-            titles.forEach(title => {
-                gsap.from(title, {
-                    scrollTrigger: {
-                        trigger: title,
-                        start: 'top 80%',
-                    },
-                    duration: 0.8,
-                    y: 30,
-                    opacity: 0,
-                    ease: 'power2.out'
+            // Setup scroll-based animations using IntersectionObserver
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
                 });
+            }, {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
             });
 
-            // Feature cards staggered animation
-            gsap.from('.feature-card', {
-                scrollTrigger: {
-                    trigger: '.feature-card',
-                    start: 'top 80%',
-                },
-                duration: 0.6,
-                y: 30,
-                opacity: 0,
-                stagger: 0.1,
-                ease: 'power2.out'
+            // Observe all elements with animate-on-scroll class
+            document.querySelectorAll('.animate-on-scroll').forEach(element => {
+                observer.observe(element);
             });
 
             // Copy button functionality for install command
