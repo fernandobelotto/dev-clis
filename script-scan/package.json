@@ -1,0 +1,29 @@
+{
+  "name": "script-scan",
+  "version": "1.0.0",
+  "description": "Interactive npm script runner",
+  "module": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "script-scan": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "bun build ./src/cli/index.ts --outdir ./dist --target bun",
+    "build:watch": "bun build ./src/cli/index.ts --outdir ./dist --target bun --watch",
+    "build:executable": "bun build ./src/cli/index.ts --compile --outfile script-scan",
+    "dev": "bun --watch src/cli/index.ts",
+    "start": "bun dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "commander": "^11.1.0",
+    "enquirer": "^2.4.1"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^20.17.30",
+    "typescript": "^5.8.3"
+  },
+  "license": "MIT",
+  "author": "Fernando Bosco"
+}
