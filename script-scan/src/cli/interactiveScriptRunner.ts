@@ -25,6 +25,7 @@ const colors = {
   white: '\x1b[37m',
   bgCyan: '\x1b[46m',
   black: '\x1b[30m',
+  gray: '\x1b[90m',
 };
 
 // Icon palette for visual variety
@@ -49,42 +50,82 @@ function getTerminalWidth(): number {
   return process.stdout.columns || 80;
 }
 
+// Get short package name (last folder segment)
+function getShortPackageName(packageName: string): string {
+  if (!packageName || packageName === '(root)') return 'root';
+  const parts = packageName.split('/');
+  return parts[parts.length - 1] || packageName;
+}
+
 interface RunnerOptions {
   multi?: boolean;
+  workspaces?: boolean;
 }
 
 export async function interactiveScriptRunner(options: RunnerOptions = {}) {
-  const scripts = await getScripts();
+  const scripts = await getScripts({ workspaces: options.workspaces });
 
   if (scripts.length === 0) {
     return;
   }
 
   const termWidth = getTerminalWidth();
+  const isMonorepo = scripts.some((s) => s.packageName);
+
+  // Calculate max lengths for alignment
   const maxNameLength = Math.max(...scripts.map((s) => s.name.length));
 
-  // Reserve space for: icon (1) + space (1) + name + spaces (2) + dim arrow (3) + space (1) + prompt prefix (~4)
-  const reservedSpace = 1 + 1 + maxNameLength + 2 + 3 + 1 + 4;
-  const maxCommandLength = Math.max(20, termWidth - reservedSpace);
+  // For monorepo, use short package names
+  const shortPackageNames = isMonorepo
+    ? scripts.map((s) => getShortPackageName(s.packageName || ''))
+    : [];
+  const maxShortPackageLength = isMonorepo
+    ? Math.max(...shortPackageNames.map((n) => n.length))
+    : 0;
 
-  const choices: EnquirerChoice[] = scripts.map((s: ScriptInfo, index: number) => {
-    const icon = getIcon(index);
-    const iconColor = getIconColor(index);
-    const truncatedCommand = truncate(s.command, maxCommandLength);
+  // Layout: icon (1) + space (1) + name + space (2) + [package] + space (2) + command
+  // Cap package display to reasonable width
+  const packageDisplayWidth = Math.min(maxShortPackageLength, 15);
+  const packageColWidth = isMonorepo ? packageDisplayWidth + 3 : 0; // brackets + space
+  const reservedSpace = 1 + 1 + maxNameLength + 2 + packageColWidth + 2 + 4;
+  const maxCommandLength = Math.max(15, termWidth - reservedSpace);
 
-    const message = `${iconColor}${icon}${colors.reset} ${s.name.padEnd(maxNameLength)}  ${colors.dim}${truncatedCommand}${colors.reset}`;
+  // Create a unique key for each script (handles duplicate script names in monorepo)
+  const getScriptKey = (s: ScriptInfo) =>
+    isMonorepo ? `${s.packageName}:${s.name}` : s.name;
 
-    return {
-      name: s.name,
-      value: s.name,
-      message,
-      command: s.command,
-    };
-  });
+  const choices: EnquirerChoice[] = scripts.map(
+    (s: ScriptInfo, index: number) => {
+      const icon = getIcon(index);
+      const iconColor = getIconColor(index);
+      const truncatedCommand = truncate(s.command, maxCommandLength);
+
+      let message: string;
+      if (isMonorepo && s.packageName) {
+        const shortPkg = truncate(getShortPackageName(s.packageName), packageDisplayWidth);
+        const packageTag = `${colors.dim}[${shortPkg}]${colors.reset}`;
+        const paddedPackageTag = packageTag + ' '.repeat(packageDisplayWidth - shortPkg.length);
+        message = `${iconColor}${icon}${colors.reset} ${s.name.padEnd(maxNameLength)}  ${paddedPackageTag}  ${colors.dim}${truncatedCommand}${colors.reset}`;
+      } else {
+        message = `${iconColor}${icon}${colors.reset} ${s.name.padEnd(maxNameLength)}  ${colors.dim}${truncatedCommand}${colors.reset}`;
+      }
+
+      return {
+        name: getScriptKey(s),
+        value: getScriptKey(s),
+        message,
+        command: s.command,
+        packageName: s.packageName,
+        packagePath: s.packagePath,
+      };
+    }
+  );
 
   const promptOptions: EnquirerAutoCompletePromptOptions = {
     name: 'selectedScript',
-    message: `${colors.cyan}Select script${colors.reset}`,
+    message: isMonorepo
+      ? `${colors.cyan}Select script${colors.reset} ${colors.dim}(workspaces)${colors.reset}`
+      : `${colors.cyan}Select script${colors.reset}`,
     limit: 15,
     multiple: options.multi || false,
     choices: choices,
@@ -93,7 +134,7 @@ export async function interactiveScriptRunner(options: RunnerOptions = {}) {
       return suggestScripts(choices, input);
     },
     result(names: string | string[]) {
-      // enquirer passes the selected 'name' values which already match our script names
+      // enquirer passes the selected 'name' values which already match our script keys
       return Array.isArray(names) ? names : [names];
     },
   };
@@ -104,19 +145,35 @@ export async function interactiveScriptRunner(options: RunnerOptions = {}) {
   ) as EnquirerAutoCompletePrompt;
 
   // Override the highlight method for focused items
-  const originalRenderChoice = (prompt as unknown as { renderChoice: (choice: EnquirerChoice, i: number) => string }).renderChoice;
-  (prompt as unknown as { renderChoice: (choice: EnquirerChoice, i: number) => string }).renderChoice = function(choice: EnquirerChoice, i: number) {
+  const originalRenderChoice = (
+    prompt as unknown as {
+      renderChoice: (choice: EnquirerChoice, i: number) => string;
+    }
+  ).renderChoice;
+  (
+    prompt as unknown as {
+      renderChoice: (choice: EnquirerChoice, i: number) => string;
+    }
+  ).renderChoice = function (choice: EnquirerChoice, i: number) {
     const self = this as unknown as { index: number; input: string };
     const isFocused = i === self.index;
 
     if (isFocused) {
       // Find the original script to recreate the message with highlight
-      const script = scripts.find((s) => s.name === choice.value);
+      const script = scripts.find((s) => getScriptKey(s) === choice.value);
       if (script) {
         const idx = scripts.indexOf(script);
         const icon = getIcon(idx);
         const truncatedCommand = truncate(script.command, maxCommandLength);
-        return `${colors.cyan}❯${colors.reset} ${colors.cyan}${icon}${colors.reset} ${colors.cyan}${colors.bold}${script.name.padEnd(maxNameLength)}${colors.reset}  ${colors.dim}${truncatedCommand}${colors.reset}`;
+
+        if (isMonorepo && script.packageName) {
+          const shortPkg = truncate(getShortPackageName(script.packageName), packageDisplayWidth);
+          const packageTag = `${colors.cyan}[${shortPkg}]${colors.reset}`;
+          const paddedPackageTag = packageTag + ' '.repeat(packageDisplayWidth - shortPkg.length);
+          return `${colors.cyan}❯${colors.reset} ${colors.cyan}${icon}${colors.reset} ${colors.cyan}${colors.bold}${script.name.padEnd(maxNameLength)}${colors.reset}  ${paddedPackageTag}  ${colors.dim}${truncatedCommand}${colors.reset}`;
+        } else {
+          return `${colors.cyan}❯${colors.reset} ${colors.cyan}${icon}${colors.reset} ${colors.cyan}${colors.bold}${script.name.padEnd(maxNameLength)}${colors.reset}  ${colors.dim}${truncatedCommand}${colors.reset}`;
+        }
       }
     }
 
@@ -125,20 +182,31 @@ export async function interactiveScriptRunner(options: RunnerOptions = {}) {
 
   try {
     const result = await prompt.run();
-    const selectedScripts = Array.isArray(result) ? result : [result];
+    const selectedScriptKeys = Array.isArray(result) ? result : [result];
 
-    if (!selectedScripts || selectedScripts.length === 0) {
+    if (!selectedScriptKeys || selectedScriptKeys.length === 0) {
       console.log('No script selected.');
       return;
     }
 
     console.log('');
 
-    for (const scriptName of selectedScripts) {
-      if (selectedScripts.length > 1) {
-        console.log(`\n${colors.green}▶${colors.reset} Running: ${colors.bold}${scriptName}${colors.reset}\n`);
+    for (const scriptKey of selectedScriptKeys) {
+      const choice = choices.find((c) => c.value === scriptKey);
+      const script = scripts.find((s) => getScriptKey(s) === scriptKey);
+
+      if (!script) continue;
+
+      if (selectedScriptKeys.length > 1 || isMonorepo) {
+        const location = script.packageName
+          ? ` ${colors.dim}(${script.packageName})${colors.reset}`
+          : '';
+        console.log(
+          `\n${colors.green}▶${colors.reset} Running: ${colors.bold}${script.name}${colors.reset}${location}\n`
+        );
       }
-      await runScript(scriptName);
+
+      await runScript(script.name, script.packagePath);
     }
   } catch (error) {
     // User cancelled (Ctrl+C)

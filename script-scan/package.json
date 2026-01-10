@@ -13,7 +13,8 @@
     "build:executable": "bun build ./src/cli/index.ts --compile --outfile script-scan",
     "dev": "bun --watch src/cli/index.ts",
     "start": "bun dist/index.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "link": "bun link"
   },
   "dependencies": {
     "commander": "^11.1.0",

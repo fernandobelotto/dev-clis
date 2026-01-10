@@ -1,10 +1,14 @@
 import { spawn } from 'child_process';
 
-export async function runScript(scriptName: string): Promise<boolean> {
+export async function runScript(
+  scriptName: string,
+  cwd?: string
+): Promise<boolean> {
   return new Promise((resolve) => {
     const child = spawn('bun', ['run', scriptName], {
       stdio: 'inherit',
       shell: true,
+      cwd: cwd || process.cwd(),
     });
 
     child.on('close', (code) => {

@@ -1,6 +1,8 @@
 export interface ScriptInfo {
   name: string;
   command: string;
+  packageName?: string;
+  packagePath?: string;
 }
 
 export interface EnquirerChoice {
@@ -8,6 +10,8 @@ export interface EnquirerChoice {
   value: string;
   message: string;
   command: string;
+  packageName?: string;
+  packagePath?: string;
 }
 
 export interface EnquirerAutoCompletePromptOptions {
