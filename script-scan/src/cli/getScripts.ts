@@ -1,7 +1,8 @@
 import { readFile, readdir, stat } from 'fs/promises';
-import { join, dirname, basename, relative } from 'path';
+import { join, dirname, relative } from 'path';
 import { existsSync } from 'fs';
 import type { ScriptInfo } from './interfaces';
+import { getCachedScripts, setCachedScripts } from './cache';
 
 async function findPackageJson(startDir: string): Promise<string | null> {
   let currentDir = startDir;
@@ -155,6 +156,13 @@ export async function getScripts(
       return [];
     }
 
+    // Check cache
+    const cacheKey = `workspaces:${monorepoRoot}`;
+    const cached = await getCachedScripts(cacheKey, packageJsonPaths);
+    if (cached) {
+      return cached;
+    }
+
     const allScripts: ScriptInfo[] = [];
 
     for (const pkgPath of packageJsonPaths) {
@@ -176,6 +184,9 @@ export async function getScripts(
       return a.name.localeCompare(b.name);
     });
 
+    // Update cache
+    await setCachedScripts(cacheKey, allScripts, packageJsonPaths);
+
     return allScripts;
   }
 
@@ -190,7 +201,19 @@ export async function getScripts(
       return [];
     }
 
-    return parsePackageJson(packagePath);
+    // Check cache
+    const cacheKey = `single:${packagePath}`;
+    const cached = await getCachedScripts(cacheKey, [packagePath]);
+    if (cached) {
+      return cached;
+    }
+
+    const scripts = await parsePackageJson(packagePath);
+
+    // Update cache
+    await setCachedScripts(cacheKey, scripts, [packagePath]);
+
+    return scripts;
   } catch (err) {
     console.error('Failed to read package.json:', err);
     return [];

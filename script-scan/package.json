@@ -14,7 +14,8 @@
     "dev": "bun --watch src/cli/index.ts",
     "start": "bun dist/index.js",
     "typecheck": "tsc --noEmit",
-    "link": "bun link"
+    "link": "bun link",
+    "test": "bun test"
   },
   "dependencies": {
     "commander": "^11.1.0",

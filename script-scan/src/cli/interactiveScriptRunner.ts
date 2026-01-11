@@ -1,6 +1,7 @@
 import { getScripts } from './getScripts';
 import { suggestScripts } from './suggestScripts';
 import { runScript } from './runScript';
+import { detectPackageManager } from './detectPackageManager';
 import type {
   ScriptInfo,
   EnquirerChoice,
@@ -9,7 +10,7 @@ import type {
 } from './interfaces';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { AutoComplete: AutoCompletePrompt } = require('enquirer');
+const { AutoComplete: AutoCompletePrompt, Confirm } = require('enquirer');
 
 // ANSI color codes
 const colors = {
@@ -28,8 +29,14 @@ const colors = {
   gray: '\x1b[90m',
 };
 
+// Icon configuration type
+interface IconConfig {
+  icon: string;
+  color: keyof typeof colors;
+}
+
 // Nerd Font icons mapped to script categories (using Material Design Icons - md-*)
-const scriptIcons: Record<string, { icon: string; color: keyof typeof colors }> = {
+const scriptIcons: Record<string, IconConfig> = {
   // Build/Compile
   build: { icon: '󰏗', color: 'yellow' },    // md-package-variant
   compile: { icon: '󰏗', color: 'yellow' },
@@ -106,21 +113,24 @@ const scriptIcons: Record<string, { icon: string; color: keyof typeof colors }> 
   debug: { icon: '󰃤', color: 'yellow' },    // md-bug
 };
 
-// Default icon for unrecognized scripts
-const defaultIcon = { icon: '󰆍', color: 'gray' as keyof typeof colors }; // md-console
+// Pre-computed sorted keywords for partial matching (longest first for better matches)
+const sortedKeywords = Object.keys(scriptIcons).sort((a, b) => b.length - a.length);
 
-function getScriptCategory(scriptName: string): { icon: string; color: keyof typeof colors } {
+// Default icon for unrecognized scripts
+const defaultIcon: IconConfig = { icon: '󰆍', color: 'gray' }; // md-console
+
+function getScriptCategory(scriptName: string): IconConfig {
   const name = scriptName.toLowerCase();
 
-  // Check for exact match first
+  // Check for exact match first (O(1))
   if (scriptIcons[name]) {
     return scriptIcons[name];
   }
 
-  // Check if script name contains any of the keywords
-  for (const [keyword, iconConfig] of Object.entries(scriptIcons)) {
+  // Check partial matches using pre-sorted keywords (longest first)
+  for (const keyword of sortedKeywords) {
     if (name.includes(keyword)) {
-      return iconConfig;
+      return scriptIcons[keyword]!;
     }
   }
 
@@ -153,8 +163,44 @@ function getShortPackageName(packageName: string): string {
 }
 
 interface RunnerOptions {
-  multi?: boolean;
   workspaces?: boolean;
+  limit?: number;
+}
+
+async function confirmMultiSelect(
+  scripts: ScriptInfo[],
+  selectedKeys: string[],
+  getScriptKey: (s: ScriptInfo) => string
+): Promise<boolean> {
+  console.log('');
+  console.log(`${colors.cyan}${colors.bold}Selected scripts (in order):${colors.reset}`);
+
+  let orderNum = 1;
+  for (const key of selectedKeys) {
+    const script = scripts.find((s) => getScriptKey(s) === key);
+    if (script) {
+      const location = script.packageName
+        ? ` ${colors.dim}(${script.packageName})${colors.reset}`
+        : '';
+      console.log(`  ${colors.yellow}${orderNum}.${colors.reset} ${script.name}${location}`);
+      orderNum++;
+    }
+  }
+
+  console.log('');
+
+  const pm = detectPackageManager(process.cwd());
+  const prompt = new Confirm({
+    name: 'confirm',
+    message: `Run ${selectedKeys.length} scripts with ${colors.cyan}${pm}${colors.reset}?`,
+    initial: true,
+  });
+
+  try {
+    return await prompt.run();
+  } catch {
+    return false;
+  }
 }
 
 export async function interactiveScriptRunner(options: RunnerOptions = {}) {
@@ -189,6 +235,9 @@ export async function interactiveScriptRunner(options: RunnerOptions = {}) {
   const getScriptKey = (s: ScriptInfo) =>
     isMonorepo ? `${s.packageName}:${s.name}` : s.name;
 
+  // Track selection order
+  const selectionOrder: string[] = [];
+
   const choices: EnquirerChoice[] = scripts.map(
     (s: ScriptInfo) => {
       const icon = getIcon(s.name);
@@ -219,10 +268,10 @@ export async function interactiveScriptRunner(options: RunnerOptions = {}) {
   const promptOptions: EnquirerAutoCompletePromptOptions = {
     name: 'selectedScript',
     message: isMonorepo
-      ? `${colors.cyan}Select script${colors.reset} ${colors.dim}(workspaces)${colors.reset}`
-      : `${colors.cyan}Select script${colors.reset}`,
-    limit: 15,
-    multiple: options.multi || false,
+      ? `${colors.cyan}Select script${colors.reset} ${colors.dim}(space to select, enter to run)${colors.reset}`
+      : `${colors.cyan}Select script${colors.reset} ${colors.dim}(space to select, enter to run)${colors.reset}`,
+    limit: options.limit || 15,
+    multiple: true,
     choices: choices,
     pointer: `${colors.cyan}❯${colors.reset}`,
     suggest(input: string, choices: EnquirerChoice[]) {
@@ -239,19 +288,45 @@ export async function interactiveScriptRunner(options: RunnerOptions = {}) {
     promptOptions
   ) as EnquirerAutoCompletePrompt;
 
+  // Override toggle to track selection order
+  const promptInternal = prompt as unknown as {
+    index: number;
+    choices: Array<{ name: string; enabled?: boolean }>;
+    toggle: (choice: { name: string; enabled?: boolean }) => void;
+    renderChoice: (choice: EnquirerChoice, i: number) => string;
+  };
+
+  const originalToggle = promptInternal.toggle.bind(prompt);
+  promptInternal.toggle = function(choice: { name: string; enabled?: boolean }) {
+    const wasEnabled = choice.enabled;
+    originalToggle(choice);
+
+    if (!wasEnabled) {
+      // Was not selected, now selected - add to order
+      if (!selectionOrder.includes(choice.name)) {
+        selectionOrder.push(choice.name);
+      }
+    } else {
+      // Was selected, now deselected - remove from order
+      const idx = selectionOrder.indexOf(choice.name);
+      if (idx !== -1) {
+        selectionOrder.splice(idx, 1);
+      }
+    }
+  };
+
   // Override the highlight method for focused items
-  const originalRenderChoice = (
-    prompt as unknown as {
-      renderChoice: (choice: EnquirerChoice, i: number) => string;
-    }
-  ).renderChoice;
-  (
-    prompt as unknown as {
-      renderChoice: (choice: EnquirerChoice, i: number) => string;
-    }
-  ).renderChoice = function (choice: EnquirerChoice, i: number) {
-    const self = this as unknown as { index: number; input: string };
+  const originalRenderChoice = promptInternal.renderChoice;
+  promptInternal.renderChoice = function (choice: EnquirerChoice, i: number) {
+    const self = this as unknown as { index: number; input: string; choices: Array<{ enabled?: boolean }> };
     const isFocused = i === self.index;
+    const isSelected = self.choices[i]?.enabled;
+
+    // Find selection order number
+    const orderIdx = selectionOrder.indexOf(choice.value);
+    const orderPrefix = orderIdx !== -1
+      ? `${colors.yellow}${orderIdx + 1}${colors.reset} `
+      : '  ';
 
     if (isFocused) {
       // Find the original script to recreate the message with highlight
@@ -259,15 +334,34 @@ export async function interactiveScriptRunner(options: RunnerOptions = {}) {
       if (script) {
         const icon = getIcon(script.name);
         const truncatedCommand = truncate(script.command, maxCommandLength);
+        const checkMark = isSelected ? `${colors.green}◉${colors.reset} ` : `${colors.dim}○${colors.reset} `;
 
         if (isMonorepo && script.packageName) {
           const shortPkg = truncate(getShortPackageName(script.packageName), packageDisplayWidth);
           const packageTag = `${colors.cyan}[${shortPkg}]${colors.reset}`;
           const paddedPackageTag = packageTag + ' '.repeat(packageDisplayWidth - shortPkg.length);
-          return `${colors.cyan}❯${colors.reset} ${colors.cyan}${icon}${colors.reset} ${colors.cyan}${colors.bold}${script.name.padEnd(maxNameLength)}${colors.reset}  ${paddedPackageTag}  ${colors.dim}${truncatedCommand}${colors.reset}`;
+          return `${colors.cyan}❯${colors.reset} ${checkMark}${orderPrefix}${colors.cyan}${icon}${colors.reset} ${colors.cyan}${colors.bold}${script.name.padEnd(maxNameLength)}${colors.reset}  ${paddedPackageTag}  ${colors.dim}${truncatedCommand}${colors.reset}`;
         } else {
-          return `${colors.cyan}❯${colors.reset} ${colors.cyan}${icon}${colors.reset} ${colors.cyan}${colors.bold}${script.name.padEnd(maxNameLength)}${colors.reset}  ${colors.dim}${truncatedCommand}${colors.reset}`;
+          return `${colors.cyan}❯${colors.reset} ${checkMark}${orderPrefix}${colors.cyan}${icon}${colors.reset} ${colors.cyan}${colors.bold}${script.name.padEnd(maxNameLength)}${colors.reset}  ${colors.dim}${truncatedCommand}${colors.reset}`;
         }
+      }
+    }
+
+    // Non-focused items
+    const script = scripts.find((s) => getScriptKey(s) === choice.value);
+    if (script) {
+      const icon = getIcon(script.name);
+      const iconColor = getIconColor(script.name);
+      const truncatedCommand = truncate(script.command, maxCommandLength);
+      const checkMark = isSelected ? `${colors.green}◉${colors.reset} ` : `${colors.dim}○${colors.reset} `;
+
+      if (isMonorepo && script.packageName) {
+        const shortPkg = truncate(getShortPackageName(script.packageName), packageDisplayWidth);
+        const packageTag = `${colors.dim}[${shortPkg}]${colors.reset}`;
+        const paddedPackageTag = packageTag + ' '.repeat(packageDisplayWidth - shortPkg.length);
+        return `  ${checkMark}${orderPrefix}${iconColor}${icon}${colors.reset} ${script.name.padEnd(maxNameLength)}  ${paddedPackageTag}  ${colors.dim}${truncatedCommand}${colors.reset}`;
+      } else {
+        return `  ${checkMark}${orderPrefix}${iconColor}${icon}${colors.reset} ${script.name.padEnd(maxNameLength)}  ${colors.dim}${truncatedCommand}${colors.reset}`;
       }
     }
 
@@ -275,18 +369,42 @@ export async function interactiveScriptRunner(options: RunnerOptions = {}) {
   };
 
   try {
-    const result = await prompt.run();
-    const selectedScriptKeys = Array.isArray(result) ? result : [result];
+    await prompt.run();
 
-    if (!selectedScriptKeys || selectedScriptKeys.length === 0) {
-      console.log('No script selected.');
-      return;
+    // Determine which scripts to run
+    let selectedScriptKeys: string[];
+
+    if (selectionOrder.length > 0) {
+      // Use selection order (user explicitly selected with space)
+      selectedScriptKeys = selectionOrder;
+    } else {
+      // No explicit selection, use the focused item (user just pressed enter)
+      const focusedIndex = promptInternal.index;
+      const focusedChoice = promptInternal.choices[focusedIndex];
+      if (focusedChoice) {
+        selectedScriptKeys = [focusedChoice.name];
+      } else {
+        console.log('No script selected.');
+        return;
+      }
     }
 
-    console.log('');
+    // Confirm before running multiple scripts
+    if (selectedScriptKeys.length > 1) {
+      const confirmed = await confirmMultiSelect(
+        scripts,
+        selectedScriptKeys,
+        getScriptKey
+      );
+      if (!confirmed) {
+        console.log(`${colors.dim}Cancelled.${colors.reset}`);
+        return;
+      }
+    } else {
+      console.log('');
+    }
 
     for (const scriptKey of selectedScriptKeys) {
-      const choice = choices.find((c) => c.value === scriptKey);
       const script = scripts.find((s) => getScriptKey(s) === scriptKey);
 
       if (!script) continue;
