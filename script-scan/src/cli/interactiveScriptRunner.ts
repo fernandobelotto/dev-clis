@@ -28,17 +28,112 @@ const colors = {
   gray: '\x1b[90m',
 };
 
-// Icon palette for visual variety
-const icons = ['●', '◆', '■', '▸', '★'];
+// Nerd Font icons mapped to script categories (using Material Design Icons - md-*)
+const scriptIcons: Record<string, { icon: string; color: keyof typeof colors }> = {
+  // Build/Compile
+  build: { icon: '󰏗', color: 'yellow' },    // md-package-variant
+  compile: { icon: '󰏗', color: 'yellow' },
+  bundle: { icon: '󰏗', color: 'yellow' },
 
-function getIcon(index: number): string {
-  return icons[index % icons.length] ?? '●';
+  // Development/Run
+  dev: { icon: '󰐊', color: 'green' },       // md-play
+  start: { icon: '󰐊', color: 'green' },
+  serve: { icon: '󰐊', color: 'green' },
+  run: { icon: '󰐊', color: 'green' },
+
+  // Watch
+  watch: { icon: '󰈈', color: 'cyan' },      // md-eye
+  preview: { icon: '󰈈', color: 'cyan' },
+
+  // Test
+  test: { icon: '󰙨', color: 'magenta' },    // md-test-tube
+  spec: { icon: '󰙨', color: 'magenta' },
+  e2e: { icon: '󰙨', color: 'magenta' },
+  jest: { icon: '󰙨', color: 'magenta' },
+  vitest: { icon: '󰙨', color: 'magenta' },
+  coverage: { icon: '󰙨', color: 'magenta' },
+
+  // Lint/Format
+  lint: { icon: '󰃢', color: 'cyan' },       // md-broom
+  eslint: { icon: '󰃢', color: 'cyan' },
+  format: { icon: '󰉢', color: 'cyan' },     // md-format-align-left
+  prettier: { icon: '󰉢', color: 'cyan' },
+  check: { icon: '󰄬', color: 'cyan' },      // md-check
+
+  // Type checking (TypeScript icon)
+  typecheck: { icon: '󰛦', color: 'blue' },  // md-language-typescript
+  types: { icon: '󰛦', color: 'blue' },
+  tsc: { icon: '󰛦', color: 'blue' },
+
+  // Clean
+  clean: { icon: '󰩺', color: 'yellow' },    // md-trash-can
+  reset: { icon: '󰩺', color: 'yellow' },
+
+  // Install/Setup
+  install: { icon: '󰇚', color: 'cyan' },    // md-download
+  setup: { icon: '󰇚', color: 'cyan' },
+  postinstall: { icon: '󰇚', color: 'cyan' },
+  prepare: { icon: '󰇚', color: 'cyan' },
+
+  // Deploy/Release
+  deploy: { icon: '󰁜', color: 'magenta' },  // md-rocket (md-arrow-up-bold)
+  release: { icon: '󰁜', color: 'magenta' },
+  publish: { icon: '󰁜', color: 'magenta' },
+
+  // Documentation
+  docs: { icon: '󰈙', color: 'blue' },       // md-file-document
+  doc: { icon: '󰈙', color: 'blue' },
+  storybook: { icon: '󰈙', color: 'blue' },
+
+  // Database
+  db: { icon: '󰆼', color: 'yellow' },       // md-database
+  migrate: { icon: '󰆼', color: 'yellow' },
+  seed: { icon: '󰆼', color: 'yellow' },
+  prisma: { icon: '󰆼', color: 'yellow' },
+  drizzle: { icon: '󰆼', color: 'yellow' },
+
+  // Generate/Scaffold
+  generate: { icon: '󰒓', color: 'cyan' },   // md-cog
+  gen: { icon: '󰒓', color: 'cyan' },
+  scaffold: { icon: '󰒓', color: 'cyan' },
+  codegen: { icon: '󰒓', color: 'cyan' },
+
+  // Link
+  link: { icon: '󰌷', color: 'blue' },       // md-link
+  unlink: { icon: '󰌷', color: 'blue' },
+
+  // Debug
+  debug: { icon: '󰃤', color: 'yellow' },    // md-bug
+};
+
+// Default icon for unrecognized scripts
+const defaultIcon = { icon: '󰆍', color: 'gray' as keyof typeof colors }; // md-console
+
+function getScriptCategory(scriptName: string): { icon: string; color: keyof typeof colors } {
+  const name = scriptName.toLowerCase();
+
+  // Check for exact match first
+  if (scriptIcons[name]) {
+    return scriptIcons[name];
+  }
+
+  // Check if script name contains any of the keywords
+  for (const [keyword, iconConfig] of Object.entries(scriptIcons)) {
+    if (name.includes(keyword)) {
+      return iconConfig;
+    }
+  }
+
+  return defaultIcon;
 }
 
-function getIconColor(index: number): string {
-  const colorKeys = ['cyan', 'green', 'yellow', 'magenta', 'blue'] as const;
-  const key = colorKeys[index % colorKeys.length] ?? 'cyan';
-  return colors[key];
+function getIcon(scriptName: string): string {
+  return getScriptCategory(scriptName).icon;
+}
+
+function getIconColor(scriptName: string): string {
+  const category = getScriptCategory(scriptName);
+  return colors[category.color];
 }
 
 function truncate(str: string, maxLength: number): string {
@@ -95,9 +190,9 @@ export async function interactiveScriptRunner(options: RunnerOptions = {}) {
     isMonorepo ? `${s.packageName}:${s.name}` : s.name;
 
   const choices: EnquirerChoice[] = scripts.map(
-    (s: ScriptInfo, index: number) => {
-      const icon = getIcon(index);
-      const iconColor = getIconColor(index);
+    (s: ScriptInfo) => {
+      const icon = getIcon(s.name);
+      const iconColor = getIconColor(s.name);
       const truncatedCommand = truncate(s.command, maxCommandLength);
 
       let message: string;
@@ -162,8 +257,7 @@ export async function interactiveScriptRunner(options: RunnerOptions = {}) {
       // Find the original script to recreate the message with highlight
       const script = scripts.find((s) => getScriptKey(s) === choice.value);
       if (script) {
-        const idx = scripts.indexOf(script);
-        const icon = getIcon(idx);
+        const icon = getIcon(script.name);
         const truncatedCommand = truncate(script.command, maxCommandLength);
 
         if (isMonorepo && script.packageName) {
