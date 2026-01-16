@@ -11,6 +11,7 @@ const createChoice = (
   value: name,
   message: name,
   command,
+  source: 'npm',
   packageName,
 });
 

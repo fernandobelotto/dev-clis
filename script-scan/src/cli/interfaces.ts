@@ -1,6 +1,9 @@
+export type ScriptSource = 'npm' | 'make';
+
 export interface ScriptInfo {
   name: string;
   command: string;
+  source: ScriptSource;
   packageName?: string;
   packagePath?: string;
 }
@@ -10,6 +13,7 @@ export interface EnquirerChoice {
   value: string;
   message: string;
   command: string;
+  source: ScriptSource;
   packageName?: string;
   packagePath?: string;
 }

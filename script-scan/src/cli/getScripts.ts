@@ -116,6 +116,7 @@ async function parsePackageJson(
       ([name, command]) => ({
         name,
         command: command as string,
+        source: 'npm' as const,
         packageName,
         packagePath: monorepoRoot ? packageDir : undefined,
       })
@@ -195,9 +196,6 @@ export async function getScripts(
     const packagePath = await findPackageJson(cwd);
 
     if (!packagePath) {
-      console.error(
-        'No package.json found in current directory or any parent directory.'
-      );
       return [];
     }
 

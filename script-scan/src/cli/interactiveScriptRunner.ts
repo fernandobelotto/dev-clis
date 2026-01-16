@@ -1,9 +1,11 @@
 import { getScripts } from './getScripts';
+import { getMakefileTargets } from './getMakefileTargets';
 import { suggestScripts } from './suggestScripts';
 import { runScript } from './runScript';
 import { detectPackageManager } from './detectPackageManager';
 import type {
   ScriptInfo,
+  ScriptSource,
   EnquirerChoice,
   EnquirerAutoCompletePromptOptions,
   EnquirerAutoCompletePrompt,
@@ -119,7 +121,10 @@ const sortedKeywords = Object.keys(scriptIcons).sort((a, b) => b.length - a.leng
 // Default icon for unrecognized scripts
 const defaultIcon: IconConfig = { icon: '󰆍', color: 'gray' }; // md-console
 
-function getScriptCategory(scriptName: string): IconConfig {
+// Default icon for Makefile targets
+const makeIcon: IconConfig = { icon: '󱁤', color: 'yellow' }; // md-hammer-wrench
+
+function getScriptCategory(scriptName: string, source: ScriptSource = 'npm'): IconConfig {
   const name = scriptName.toLowerCase();
 
   // Check for exact match first (O(1))
@@ -134,15 +139,16 @@ function getScriptCategory(scriptName: string): IconConfig {
     }
   }
 
-  return defaultIcon;
+  // Use make-specific default for Makefile targets
+  return source === 'make' ? makeIcon : defaultIcon;
 }
 
-function getIcon(scriptName: string): string {
-  return getScriptCategory(scriptName).icon;
+function getIcon(scriptName: string, source: ScriptSource = 'npm'): string {
+  return getScriptCategory(scriptName, source).icon;
 }
 
-function getIconColor(scriptName: string): string {
-  const category = getScriptCategory(scriptName);
+function getIconColor(scriptName: string, source: ScriptSource = 'npm'): string {
+  const category = getScriptCategory(scriptName, source);
   return colors[category.color];
 }
 
@@ -204,9 +210,17 @@ async function confirmMultiSelect(
 }
 
 export async function interactiveScriptRunner(options: RunnerOptions = {}) {
-  const scripts = await getScripts({ workspaces: options.workspaces });
+  // Fetch npm scripts and makefile targets in parallel
+  const [npmScripts, makeTargets] = await Promise.all([
+    getScripts({ workspaces: options.workspaces }),
+    getMakefileTargets({ workspaces: options.workspaces }),
+  ]);
+
+  const scripts = [...npmScripts, ...makeTargets];
+  const hasBothSources = npmScripts.length > 0 && makeTargets.length > 0;
 
   if (scripts.length === 0) {
+    console.error('No package.json scripts or Makefile targets found.');
     return;
   }
 
@@ -231,27 +245,34 @@ export async function interactiveScriptRunner(options: RunnerOptions = {}) {
   const reservedSpace = 1 + 1 + maxNameLength + 2 + packageColWidth + 2 + 4;
   const maxCommandLength = Math.max(15, termWidth - reservedSpace);
 
-  // Create a unique key for each script (handles duplicate script names in monorepo)
-  const getScriptKey = (s: ScriptInfo) =>
-    isMonorepo ? `${s.packageName}:${s.name}` : s.name;
+  // Create a unique key for each script (includes source to avoid conflicts)
+  const getScriptKey = (s: ScriptInfo) => {
+    const base = isMonorepo ? `${s.packageName}:${s.name}` : s.name;
+    return hasBothSources ? `${s.source}:${base}` : base;
+  };
 
   // Track selection order
   const selectionOrder: string[] = [];
 
   const choices: EnquirerChoice[] = scripts.map(
     (s: ScriptInfo) => {
-      const icon = getIcon(s.name);
-      const iconColor = getIconColor(s.name);
+      const icon = getIcon(s.name, s.source);
+      const iconColor = getIconColor(s.name, s.source);
       const truncatedCommand = truncate(s.command, maxCommandLength);
+
+      // Source indicator when both npm and make are present
+      const sourceTag = hasBothSources
+        ? `${s.source === 'npm' ? colors.green : colors.yellow}[${s.source}]${colors.reset} `
+        : '';
 
       let message: string;
       if (isMonorepo && s.packageName) {
         const shortPkg = truncate(getShortPackageName(s.packageName), packageDisplayWidth);
         const packageTag = `${colors.dim}[${shortPkg}]${colors.reset}`;
         const paddedPackageTag = packageTag + ' '.repeat(packageDisplayWidth - shortPkg.length);
-        message = `${iconColor}${icon}${colors.reset} ${s.name.padEnd(maxNameLength)}  ${paddedPackageTag}  ${colors.dim}${truncatedCommand}${colors.reset}`;
+        message = `${sourceTag}${iconColor}${icon}${colors.reset} ${s.name.padEnd(maxNameLength)}  ${paddedPackageTag}  ${colors.dim}${truncatedCommand}${colors.reset}`;
       } else {
-        message = `${iconColor}${icon}${colors.reset} ${s.name.padEnd(maxNameLength)}  ${colors.dim}${truncatedCommand}${colors.reset}`;
+        message = `${sourceTag}${iconColor}${icon}${colors.reset} ${s.name.padEnd(maxNameLength)}  ${colors.dim}${truncatedCommand}${colors.reset}`;
       }
 
       return {
@@ -259,6 +280,7 @@ export async function interactiveScriptRunner(options: RunnerOptions = {}) {
         value: getScriptKey(s),
         message,
         command: s.command,
+        source: s.source,
         packageName: s.packageName,
         packagePath: s.packagePath,
       };
@@ -332,17 +354,20 @@ export async function interactiveScriptRunner(options: RunnerOptions = {}) {
       // Find the original script to recreate the message with highlight
       const script = scripts.find((s) => getScriptKey(s) === choice.value);
       if (script) {
-        const icon = getIcon(script.name);
+        const icon = getIcon(script.name, script.source);
         const truncatedCommand = truncate(script.command, maxCommandLength);
         const checkMark = isSelected ? `${colors.green}◉${colors.reset} ` : `${colors.dim}○${colors.reset} `;
+        const sourceTag = hasBothSources
+          ? `${script.source === 'npm' ? colors.green : colors.yellow}[${script.source}]${colors.reset} `
+          : '';
 
         if (isMonorepo && script.packageName) {
           const shortPkg = truncate(getShortPackageName(script.packageName), packageDisplayWidth);
           const packageTag = `${colors.cyan}[${shortPkg}]${colors.reset}`;
           const paddedPackageTag = packageTag + ' '.repeat(packageDisplayWidth - shortPkg.length);
-          return `${colors.cyan}❯${colors.reset} ${checkMark}${orderPrefix}${colors.cyan}${icon}${colors.reset} ${colors.cyan}${colors.bold}${script.name.padEnd(maxNameLength)}${colors.reset}  ${paddedPackageTag}  ${colors.dim}${truncatedCommand}${colors.reset}`;
+          return `${colors.cyan}❯${colors.reset} ${checkMark}${orderPrefix}${sourceTag}${colors.cyan}${icon}${colors.reset} ${colors.cyan}${colors.bold}${script.name.padEnd(maxNameLength)}${colors.reset}  ${paddedPackageTag}  ${colors.dim}${truncatedCommand}${colors.reset}`;
         } else {
-          return `${colors.cyan}❯${colors.reset} ${checkMark}${orderPrefix}${colors.cyan}${icon}${colors.reset} ${colors.cyan}${colors.bold}${script.name.padEnd(maxNameLength)}${colors.reset}  ${colors.dim}${truncatedCommand}${colors.reset}`;
+          return `${colors.cyan}❯${colors.reset} ${checkMark}${orderPrefix}${sourceTag}${colors.cyan}${icon}${colors.reset} ${colors.cyan}${colors.bold}${script.name.padEnd(maxNameLength)}${colors.reset}  ${colors.dim}${truncatedCommand}${colors.reset}`;
         }
       }
     }
@@ -350,18 +375,21 @@ export async function interactiveScriptRunner(options: RunnerOptions = {}) {
     // Non-focused items
     const script = scripts.find((s) => getScriptKey(s) === choice.value);
     if (script) {
-      const icon = getIcon(script.name);
-      const iconColor = getIconColor(script.name);
+      const icon = getIcon(script.name, script.source);
+      const iconColor = getIconColor(script.name, script.source);
       const truncatedCommand = truncate(script.command, maxCommandLength);
       const checkMark = isSelected ? `${colors.green}◉${colors.reset} ` : `${colors.dim}○${colors.reset} `;
+      const sourceTag = hasBothSources
+        ? `${script.source === 'npm' ? colors.green : colors.yellow}[${script.source}]${colors.reset} `
+        : '';
 
       if (isMonorepo && script.packageName) {
         const shortPkg = truncate(getShortPackageName(script.packageName), packageDisplayWidth);
         const packageTag = `${colors.dim}[${shortPkg}]${colors.reset}`;
         const paddedPackageTag = packageTag + ' '.repeat(packageDisplayWidth - shortPkg.length);
-        return `  ${checkMark}${orderPrefix}${iconColor}${icon}${colors.reset} ${script.name.padEnd(maxNameLength)}  ${paddedPackageTag}  ${colors.dim}${truncatedCommand}${colors.reset}`;
+        return `  ${checkMark}${orderPrefix}${sourceTag}${iconColor}${icon}${colors.reset} ${script.name.padEnd(maxNameLength)}  ${paddedPackageTag}  ${colors.dim}${truncatedCommand}${colors.reset}`;
       } else {
-        return `  ${checkMark}${orderPrefix}${iconColor}${icon}${colors.reset} ${script.name.padEnd(maxNameLength)}  ${colors.dim}${truncatedCommand}${colors.reset}`;
+        return `  ${checkMark}${orderPrefix}${sourceTag}${iconColor}${icon}${colors.reset} ${script.name.padEnd(maxNameLength)}  ${colors.dim}${truncatedCommand}${colors.reset}`;
       }
     }
 
@@ -418,7 +446,7 @@ export async function interactiveScriptRunner(options: RunnerOptions = {}) {
         );
       }
 
-      await runScript(script.name, script.packagePath);
+      await runScript(script.name, script.packagePath, script.source);
     }
   } catch (error) {
     // User cancelled (Ctrl+C)
