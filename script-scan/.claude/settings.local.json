@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/Users/fernandobosco/Projects/fernandobelotto/script-scan/dist/index.js -w --help)",
+      "Bash(bun:*)"
+    ]
+  }
+}
