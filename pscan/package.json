@@ -1,0 +1,60 @@
+{
+  "name": "pscan",
+  "version": "1.0.0",
+  "description": "A CLI tool to interactively scan and kill processes by port number on macOS/Linux",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "pscan": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "bun build ./src/cli/index.ts --outdir ./dist --target bun --minify",
+    "build:watch": "bun build ./src/cli/index.ts --outdir ./dist --target bun --watch",
+    "build:executable": "bun build ./src/cli/index.ts --compile --outfile pscan",
+    "dev": "bun --watch src/cli/index.ts",
+    "start": "bun dist/index.js",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "cli",
+    "process",
+    "port",
+    "kill",
+    "scan",
+    "network",
+    "tcp",
+    "utility"
+  ],
+  "author": "Fernando Bosco",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "enquirer": "^2.4.1",
+    "execa": "^9.5.2"
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^11.0.1",
+    "@semantic-release/npm": "^12.0.1",
+    "@semantic-release/release-notes-generator": "^14.0.3",
+    "semantic-release": "^24.2.3",
+    "@types/node": "^20.17.30",
+    "bun-types": "latest",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fernandobelotto/pscan.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fernandobelotto/pscan/issues"
+  },
+  "homepage": "https://github.com/fernandobelotto/pscan#readme"
+}
