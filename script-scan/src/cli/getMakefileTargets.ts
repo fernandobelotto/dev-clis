@@ -1,15 +1,16 @@
-import { readFile, readdir, stat } from 'fs/promises';
-import { join, dirname, relative } from 'path';
-import { existsSync } from 'fs';
-import type { ScriptInfo } from './interfaces';
-import { getCachedScripts, setCachedScripts } from './cache';
+import { existsSync } from "node:fs";
+import { readFile, readdir, stat } from "node:fs/promises";
+import { join, dirname, relative } from "node:path";
 
-const MAKEFILE_NAMES = ['Makefile', 'makefile', 'GNUmakefile'];
+import { getCachedScripts, setCachedScripts } from "./cache";
+import type { ScriptInfo } from "./interfaces";
+
+const MAKEFILE_NAMES = ["Makefile", "makefile", "GNUmakefile"];
 
 async function findMakefile(startDir: string): Promise<string | null> {
   let currentDir = startDir;
 
-  while (currentDir !== '/') {
+  while (currentDir !== "/") {
     for (const name of MAKEFILE_NAMES) {
       const makefilePath = join(currentDir, name);
       if (existsSync(makefilePath)) {
@@ -25,11 +26,11 @@ async function findMakefile(startDir: string): Promise<string | null> {
 async function findMonorepoRoot(startDir: string): Promise<string | null> {
   let currentDir = startDir;
 
-  while (currentDir !== '/') {
-    const packagePath = join(currentDir, 'package.json');
+  while (currentDir !== "/") {
+    const packagePath = join(currentDir, "package.json");
     if (existsSync(packagePath)) {
       try {
-        const content = await readFile(packagePath, 'utf-8');
+        const content = await readFile(packagePath, "utf-8");
         const pkg = JSON.parse(content);
         if (pkg.workspaces) {
           return currentDir;
@@ -37,7 +38,7 @@ async function findMonorepoRoot(startDir: string): Promise<string | null> {
       } catch {
         // Continue searching
       }
-      if (existsSync(join(currentDir, 'pnpm-workspace.yaml'))) {
+      if (existsSync(join(currentDir, "pnpm-workspace.yaml"))) {
         return currentDir;
       }
     }
@@ -47,9 +48,7 @@ async function findMonorepoRoot(startDir: string): Promise<string | null> {
   return null;
 }
 
-async function findAllMakefiles(
-  rootDir: string
-): Promise<string[]> {
+async function findAllMakefiles(rootDir: string): Promise<string[]> {
   const results: string[] = [];
 
   async function walk(dir: string) {
@@ -60,13 +59,13 @@ async function findAllMakefiles(
 
       if (entry.isDirectory()) {
         if (
-          entry.name === 'node_modules' ||
-          entry.name === '.git' ||
-          entry.name === '.github' ||
-          entry.name === 'dist' ||
-          entry.name === 'build' ||
-          entry.name === '.next' ||
-          entry.name === 'coverage'
+          entry.name === "node_modules" ||
+          entry.name === ".git" ||
+          entry.name === ".github" ||
+          entry.name === "dist" ||
+          entry.name === "build" ||
+          entry.name === ".next" ||
+          entry.name === "coverage"
         ) {
           continue;
         }
@@ -89,7 +88,7 @@ function getPackageDisplayName(
   const relativePath = relative(monorepoRoot, makefileDir);
 
   if (!relativePath) {
-    return '(root)';
+    return "(root)";
   }
 
   return relativePath;
@@ -100,7 +99,7 @@ async function parseMakefile(
   monorepoRoot?: string
 ): Promise<ScriptInfo[]> {
   try {
-    const content = await readFile(makefilePath, 'utf-8');
+    const content = await readFile(makefilePath, "utf-8");
     const makefileDir = dirname(makefilePath);
     const packageName = monorepoRoot
       ? getPackageDisplayName(makefilePath, monorepoRoot)
@@ -118,38 +117,42 @@ async function parseMakefile(
       const targetName = match[1]!;
 
       // Skip if already seen (avoid duplicates)
-      if (seen.has(targetName)) continue;
+      if (seen.has(targetName)) {
+        continue;
+      }
       seen.add(targetName);
 
       // Get the recipe/command for this target (lines after target that start with tab)
       const targetStart = match.index + match[0].length;
       const restOfContent = content.slice(targetStart);
-      const lines = restOfContent.split('\n');
+      const lines = restOfContent.split("\n");
 
-      let command = '';
+      let command = "";
       for (const line of lines) {
         // Recipe lines start with a tab
-        if (line.startsWith('\t')) {
-          if (command) command += ' && ';
+        if (line.startsWith("\t")) {
+          if (command) {
+            command += " && ";
+          }
           command += line.trim();
-        } else if (line.trim() && !line.startsWith('#')) {
+        } else if (line.trim() && !line.startsWith("#")) {
           // Non-empty, non-comment line that doesn't start with tab = new target/variable
           break;
         }
       }
 
       targets.push({
-        name: targetName,
         command: command || `make ${targetName}`,
-        source: 'make',
+        name: targetName,
         packageName,
         packagePath: monorepoRoot ? makefileDir : undefined,
+        source: "make",
       });
     }
 
     return targets;
-  } catch (err) {
-    console.error(`Failed to read ${makefilePath}:`, err);
+  } catch (error) {
+    console.error(`Failed to read ${makefilePath}:`, error);
     return [];
   }
 }
@@ -193,10 +196,12 @@ export async function getMakefileTargets(
 
     // Sort by package name, then target name
     allTargets.sort((a, b) => {
-      const pkgCompare = (a.packageName || '').localeCompare(
-        b.packageName || ''
+      const pkgCompare = (a.packageName || "").localeCompare(
+        b.packageName || ""
       );
-      if (pkgCompare !== 0) return pkgCompare;
+      if (pkgCompare !== 0) {
+        return pkgCompare;
+      }
       return a.name.localeCompare(b.name);
     });
 
@@ -223,8 +228,8 @@ export async function getMakefileTargets(
 
     await setCachedScripts(cacheKey, targets, [makefilePath]);
     return targets;
-  } catch (err) {
-    console.error('Failed to read Makefile:', err);
+  } catch (error) {
+    console.error("Failed to read Makefile:", error);
     return [];
   }
 }

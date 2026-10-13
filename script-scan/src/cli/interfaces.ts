@@ -1,4 +1,4 @@
-export type ScriptSource = 'npm' | 'make';
+export type ScriptSource = "npm" | "make";
 
 export interface ScriptInfo {
   name: string;

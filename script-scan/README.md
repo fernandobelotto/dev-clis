@@ -2,8 +2,7 @@
 
 > A fast, interactive CLI for discovering and running npm scripts with fuzzy search
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Built with Bun](https://img.shields.io/badge/Built%20with-Bun-f9f1e1?logo=bun)](https://bun.sh)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![Built with Bun](https://img.shields.io/badge/Built%20with-Bun-f9f1e1?logo=bun)](https://bun.sh)
 
 Stop scrolling through `package.json` to find the script you need. **script-scan** gives you an interactive, searchable prompt that shows all available scripts at a glance.
 
@@ -20,7 +19,7 @@ Stop scrolling through `package.json` to find the script you need. **script-scan
 
 ## Features
 
-- **Fuzzy search** - Type to filter scripts instantly. Search matches script names *and* commands
+- **Fuzzy search** - Type to filter scripts instantly. Search matches script names _and_ commands
 - **Multi-term search** - Space-separated terms use AND logic (`build prod` matches scripts containing both)
 - **Monorepo support** - Scan all workspace packages with `-w` flag
 - **Multi-select** - Run multiple scripts sequentially with `-m` flag
@@ -69,16 +68,19 @@ Start typing to filter scripts. Press Enter to run the selected script.
 ### Examples
 
 **Run a single script interactively:**
+
 ```bash
 script-scan
 ```
 
 **Select multiple scripts to run sequentially:**
+
 ```bash
 script-scan -m
 ```
 
 **Scan all workspace packages in a monorepo:**
+
 ```bash
 script-scan -w
 ```
@@ -137,6 +139,7 @@ bun run build:executable
 ## Pro Tips
 
 - **Create an alias** for quick access:
+
   ```bash
   alias n="script-scan"
   ```

@@ -1,8 +1,8 @@
 export class TokenCount {
-    public tokens = 0;
+  public tokens = 0;
 
-    add(value: TokenCount) {
-        this.tokens += value.tokens;
-        return this;
-    }
-} 
+  add(value: TokenCount) {
+    this.tokens += value.tokens;
+    return this;
+  }
+}

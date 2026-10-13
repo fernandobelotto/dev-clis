@@ -2,12 +2,32 @@
   "name": "pscan",
   "version": "1.0.0",
   "description": "A CLI tool to interactively scan and kill processes by port number on macOS/Linux",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "keywords": [
+    "cli",
+    "kill",
+    "network",
+    "port",
+    "process",
+    "scan",
+    "tcp",
+    "utility"
+  ],
+  "homepage": "https://github.com/fernandobelotto/pscan#readme",
+  "bugs": {
+    "url": "https://github.com/fernandobelotto/pscan/issues"
+  },
+  "license": "Apache-2.0",
+  "author": "Fernando Bosco",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fernandobelotto/pscan.git"
+  },
   "bin": {
     "pscan": "./dist/index.js"
   },
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "bun build ./src/cli/index.ts --outdir ./dist --target bun --minify",
     "build:watch": "bun build ./src/cli/index.ts --outdir ./dist --target bun --watch",
@@ -15,20 +35,10 @@
     "dev": "bun --watch src/cli/index.ts",
     "start": "bun dist/index.js",
     "test": "bun test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "ultracite check",
+    "format": "ultracite fix"
   },
-  "keywords": [
-    "cli",
-    "process",
-    "port",
-    "kill",
-    "scan",
-    "network",
-    "tcp",
-    "utility"
-  ],
-  "author": "Fernando Bosco",
-  "license": "Apache-2.0",
   "dependencies": {
     "commander": "^11.1.0",
     "enquirer": "^2.4.1",
@@ -41,20 +51,15 @@
     "@semantic-release/github": "^11.0.1",
     "@semantic-release/npm": "^12.0.1",
     "@semantic-release/release-notes-generator": "^14.0.3",
-    "semantic-release": "^24.2.3",
     "@types/node": "^20.17.30",
     "bun-types": "latest",
-    "typescript": "^5.8.3"
+    "oxfmt": "^0.71.0",
+    "oxlint": "^1.86.0",
+    "semantic-release": "^24.2.3",
+    "typescript": "^5.8.3",
+    "ultracite": "8.0.0"
   },
   "engines": {
     "bun": ">=1.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fernandobelotto/pscan.git"
-  },
-  "bugs": {
-    "url": "https://github.com/fernandobelotto/pscan/issues"
-  },
-  "homepage": "https://github.com/fernandobelotto/pscan#readme"
+  }
 }
