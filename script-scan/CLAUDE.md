@@ -48,15 +48,18 @@ Then test the CLI from any directory using `script-scan` (or the user's alias li
 The CLI is built with Bun and uses Commander for argument parsing and Enquirer for the interactive prompt.
 
 **Entry point flow:**
+
 - `src/cli/index.ts` - CLI entry point, defines commands/options with Commander
 - `src/cli/interactiveScriptRunner.ts` - Main orchestrator that coordinates the interactive experience
 
 **Core modules:**
+
 - `getScripts.ts` - Walks up directory tree to find package.json, extracts scripts
 - `suggestScripts.ts` - Fuzzy filtering logic for autocomplete (AND-based multi-term matching)
 - `runScript.ts` - Spawns `bun run <script>` as child process
 
 **Type definitions:**
+
 - `interfaces.ts` - TypeScript interfaces for ScriptInfo and Enquirer types
 - `types.d.ts` - Module declaration for enquirer's AutoComplete
 
@@ -71,6 +74,7 @@ The CLI is built with Bun and uses Commander for argument parsing and Enquirer f
 ## Monorepo Support
 
 When using `-w` flag, the tool:
+
 - Finds the monorepo root by looking for `workspaces` in package.json or `pnpm-workspace.yaml`
 - Recursively scans for all package.json files (excluding node_modules, .git, .github, dist, build, etc.)
 - Displays scripts with short package names in brackets like `[mastra]`

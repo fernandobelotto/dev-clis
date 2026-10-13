@@ -13,22 +13,26 @@ A terminal command logger that records every command across your shell sessions 
 ## Installation
 
 1. Clone this repository:
+
 ```bash
 git clone https://github.com/fernandobelotto/shellmemory.git
 cd shellmemory
 ```
 
 2. Install dependencies:
+
 ```bash
 bun install
 ```
 
 3. Install the CLI globally:
+
 ```bash
 bun run install-cli
 ```
 
 4. Add the ZSH hook to your `.zshrc` file:
+
 ```bash
 # Add this to your .zshrc file
 function log_command() {
@@ -39,6 +43,7 @@ add-zsh-hook preexec log_command
 ```
 
 5. Restart your shell or source your `.zshrc`:
+
 ```bash
 source ~/.zshrc
 ```
@@ -91,4 +96,4 @@ shellmemory clean --older-than=12h
 
 ## License
 
-[Apache License 2.0](LICENSE) 
+[Apache License 2.0](LICENSE)

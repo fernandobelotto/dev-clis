@@ -1,14 +1,15 @@
-import { readFile, readdir, stat } from 'fs/promises';
-import { join, dirname, relative } from 'path';
-import { existsSync } from 'fs';
-import type { ScriptInfo } from './interfaces';
-import { getCachedScripts, setCachedScripts } from './cache';
+import { existsSync } from "node:fs";
+import { readFile, readdir, stat } from "node:fs/promises";
+import { join, dirname, relative } from "node:path";
+
+import { getCachedScripts, setCachedScripts } from "./cache";
+import type { ScriptInfo } from "./interfaces";
 
 async function findPackageJson(startDir: string): Promise<string | null> {
   let currentDir = startDir;
 
-  while (currentDir !== '/') {
-    const packagePath = join(currentDir, 'package.json');
+  while (currentDir !== "/") {
+    const packagePath = join(currentDir, "package.json");
     if (existsSync(packagePath)) {
       return packagePath;
     }
@@ -21,11 +22,11 @@ async function findPackageJson(startDir: string): Promise<string | null> {
 async function findMonorepoRoot(startDir: string): Promise<string | null> {
   let currentDir = startDir;
 
-  while (currentDir !== '/') {
-    const packagePath = join(currentDir, 'package.json');
+  while (currentDir !== "/") {
+    const packagePath = join(currentDir, "package.json");
     if (existsSync(packagePath)) {
       try {
-        const content = await readFile(packagePath, 'utf-8');
+        const content = await readFile(packagePath, "utf-8");
         const pkg = JSON.parse(content);
         // Check for workspaces (npm/yarn) or pnpm-workspace.yaml
         if (pkg.workspaces) {
@@ -35,7 +36,7 @@ async function findMonorepoRoot(startDir: string): Promise<string | null> {
         // Continue searching
       }
       // Also check for pnpm-workspace.yaml
-      if (existsSync(join(currentDir, 'pnpm-workspace.yaml'))) {
+      if (existsSync(join(currentDir, "pnpm-workspace.yaml"))) {
         return currentDir;
       }
     }
@@ -60,18 +61,18 @@ async function findAllPackageJsons(
       if (entry.isDirectory()) {
         // Skip node_modules, .git, and other common non-workspace dirs
         if (
-          entry.name === 'node_modules' ||
-          entry.name === '.git' ||
-          entry.name === '.github' ||
-          entry.name === 'dist' ||
-          entry.name === 'build' ||
-          entry.name === '.next' ||
-          entry.name === 'coverage'
+          entry.name === "node_modules" ||
+          entry.name === ".git" ||
+          entry.name === ".github" ||
+          entry.name === "dist" ||
+          entry.name === "build" ||
+          entry.name === ".next" ||
+          entry.name === "coverage"
         ) {
           continue;
         }
         await walk(fullPath);
-      } else if (entry.name === 'package.json') {
+      } else if (entry.name === "package.json") {
         results.push(fullPath);
       }
     }
@@ -89,7 +90,7 @@ function getPackageDisplayName(
   const relativePath = relative(monorepoRoot, packageDir);
 
   if (!relativePath) {
-    return '(root)';
+    return "(root)";
   }
 
   return relativePath;
@@ -100,10 +101,10 @@ async function parsePackageJson(
   monorepoRoot?: string
 ): Promise<ScriptInfo[]> {
   try {
-    const content = await readFile(packagePath, 'utf-8');
+    const content = await readFile(packagePath, "utf-8");
     const packageJson = JSON.parse(content);
 
-    if (!packageJson.scripts || typeof packageJson.scripts !== 'object') {
+    if (!packageJson.scripts || typeof packageJson.scripts !== "object") {
       return [];
     }
 
@@ -114,17 +115,17 @@ async function parsePackageJson(
 
     const scripts: ScriptInfo[] = Object.entries(packageJson.scripts).map(
       ([name, command]) => ({
-        name,
         command: command as string,
-        source: 'npm' as const,
+        name,
         packageName,
         packagePath: monorepoRoot ? packageDir : undefined,
+        source: "npm" as const,
       })
     );
 
     return scripts;
-  } catch (err) {
-    console.error(`Failed to read ${packagePath}:`, err);
+  } catch (error) {
+    console.error(`Failed to read ${packagePath}:`, error);
     return [];
   }
 }
@@ -144,16 +145,16 @@ export async function getScripts(
 
     if (!monorepoRoot) {
       console.error(
-        'No monorepo root found (no workspaces config or pnpm-workspace.yaml).'
+        "No monorepo root found (no workspaces config or pnpm-workspace.yaml)."
       );
-      console.error('Falling back to single package.json mode.');
+      console.error("Falling back to single package.json mode.");
       return getScripts({ workspaces: false });
     }
 
     const packageJsonPaths = await findAllPackageJsons(monorepoRoot);
 
     if (packageJsonPaths.length === 0) {
-      console.error('No package.json files found in monorepo.');
+      console.error("No package.json files found in monorepo.");
       return [];
     }
 
@@ -172,16 +173,18 @@ export async function getScripts(
     }
 
     if (allScripts.length === 0) {
-      console.error('No scripts found in any package.json files.');
+      console.error("No scripts found in any package.json files.");
       return [];
     }
 
     // Sort by package name, then script name
     allScripts.sort((a, b) => {
-      const pkgCompare = (a.packageName || '').localeCompare(
-        b.packageName || ''
+      const pkgCompare = (a.packageName || "").localeCompare(
+        b.packageName || ""
       );
-      if (pkgCompare !== 0) return pkgCompare;
+      if (pkgCompare !== 0) {
+        return pkgCompare;
+      }
       return a.name.localeCompare(b.name);
     });
 
@@ -212,8 +215,8 @@ export async function getScripts(
     await setCachedScripts(cacheKey, scripts, [packagePath]);
 
     return scripts;
-  } catch (err) {
-    console.error('Failed to read package.json:', err);
+  } catch (error) {
+    console.error("Failed to read package.json:", error);
     return [];
   }
 }

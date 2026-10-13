@@ -1,12 +1,17 @@
-
-export type PortInfo = { command: string; pid: string; user: string; port: string; name: string };
+export interface PortInfo {
+  command: string;
+  pid: string;
+  user: string;
+  port: string;
+  name: string;
+}
 
 // Define a minimal interface for the Enquirer choice object we use
 export interface EnquirerChoice {
-  name: string;    // Used internally by enquirer?
-  value: string;   // The actual value returned
+  name: string; // Used internally by enquirer?
+  value: string; // The actual value returned
   message: string; // Displayed in the list
-  port: string;    // Custom property for filtering
+  port: string; // Custom property for filtering
 }
 
 // Define a minimal interface for the Enquirer AutoComplete prompt options

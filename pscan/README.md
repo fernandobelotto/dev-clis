@@ -24,11 +24,13 @@ bun install -g pscan
 ## Usage
 
 Simply run:
+
 ```bash
 pscan
 ```
 
 This will:
+
 1. Scan for all TCP ports in LISTEN state
 2. Show an interactive interface where you can:
    - Type to filter ports/processes
@@ -40,12 +42,14 @@ This will:
 ### Examples
 
 Kill a specific port (e.g., development server on 5173):
+
 ```bash
 # Launch pscan and type "5173" to filter
 pscan
 ```
 
 Kill multiple Node.js processes:
+
 ```bash
 # Launch pscan and type "node" to filter
 pscan
@@ -82,8 +86,9 @@ To trigger a release manually:
 
 1. Ensure you're on the main branch
 2. Run:
+
 ```bash
 npx semantic-release
 ```
 
-See `.releaserc.json` for configuration details. 
+See `.releaserc.json` for configuration details.

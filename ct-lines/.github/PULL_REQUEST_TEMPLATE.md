@@ -1,4 +1,4 @@
-<!-- 
+<!--
 PR Title Format: <type>(<scope>): <short summary>
   type: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
   scope: optional, can be anything that specifies the place of change
@@ -18,7 +18,7 @@ PR Title Format: <type>(<scope>): <short summary>
 
 ## Related Issues
 
-<!-- 
+<!--
 Link related issues below. Insert the issue link or reference using #
 Examples:
 - Fixes #123
@@ -43,9 +43,9 @@ Examples:
 
 ## How Has This Been Tested?
 
-<!-- 
-Describe the tests that you ran to verify your changes. 
-Provide instructions so we can reproduce. 
+<!--
+Describe the tests that you ran to verify your changes.
+Provide instructions so we can reproduce.
 -->
 
 - [ ] Unit tests
@@ -58,8 +58,8 @@ Provide instructions so we can reproduce.
 
 ## Implementation Details
 
-<!-- 
-Optional: Any significant design decisions, architectural choices, or approaches taken 
+<!--
+Optional: Any significant design decisions, architectural choices, or approaches taken
 Highlight any key points that reviewers should focus on
 -->
 
@@ -87,16 +87,16 @@ Highlight any key points that reviewers should focus on
 
 ## Breaking Changes
 
-<!-- 
+<!--
 Does this PR introduce a breaking change? If yes, please describe the impact and migration path for existing applications.
 If no, please state "No breaking changes"
 -->
 
 ## Reviewer Guidelines
 
-<!-- 
+<!--
 Optional: Any specific guidelines for reviewers, areas of concern, or specific feedback you're seeking
 Examples:
 - Please focus on the error handling in the parsing function
 - I'm particularly interested in feedback on the API design
---> 
+-->

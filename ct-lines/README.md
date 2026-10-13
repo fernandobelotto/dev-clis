@@ -41,21 +41,25 @@ ct-lines <directory> [options]
 ### Examples
 
 Count lines in the current directory:
+
 ```bash
 ct-lines .
 ```
 
 Count lines in a specific directory, excluding test files:
+
 ```bash
 ct-lines src --exclude "**/*.test.*" --exclude "**/__tests__/**"
 ```
 
 Count lines and save results in multiple formats:
+
 ```bash
 ct-lines . --output-dir results
 ```
 
 Use a custom language configuration:
+
 ```bash
 ct-lines . --language-conf custom-languages.json
 ```
@@ -65,6 +69,7 @@ ct-lines . --language-conf custom-languages.json
 The tool comes with built-in language definitions for common programming languages. You can override or extend these definitions by providing a custom JSON file with the `--language-conf` option.
 
 Example language configuration:
+
 ```json
 {
   "typescript": {
@@ -81,17 +86,22 @@ Example language configuration:
 ## Output Formats
 
 ### Text Format
+
 The default text format provides a human-readable table with statistics organized by language, directory, and individual files.
 
 ### JSON Format
+
 The JSON format provides a structured representation of the results, including:
+
 - Total statistics
 - Statistics by language
 - Statistics by directory
 - Individual file statistics
 
 ### CSV Format
+
 The CSV format provides a tabular representation of the results, with one row per file and columns for:
+
 - Filename
 - Language
 - Code lines per language
@@ -139,8 +149,9 @@ To trigger a release manually:
 
 1. Ensure you're on the main branch
 2. Run:
+
 ```bash
 npx semantic-release
 ```
 
-See `.releaserc.json` for configuration details. 
+See `.releaserc.json` for configuration details.

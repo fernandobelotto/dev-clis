@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import chalk from "chalk";
 
 // Status colors
 export const success = chalk.green;
@@ -19,4 +19,4 @@ export const header = chalk.bold.cyan;
 export const filename = chalk.cyan;
 export const directory = chalk.blue;
 export const language = chalk.magenta;
-export const number = chalk.yellow; 
+export const number = chalk.yellow;

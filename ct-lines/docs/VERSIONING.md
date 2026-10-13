@@ -27,28 +27,30 @@ We follow the [Angular Commit Message Convention](https://github.com/angular/ang
 
 ### Types and Their Impact on Versioning
 
-| Type     | Description                                                    | Release Type |
-|----------|----------------------------------------------------------------|--------------|
-| feat     | A new feature                                                   | minor        |
-| fix      | A bug fix                                                       | patch        |
-| docs     | Documentation only changes                                      | patch*       |
-| style    | Changes that don't affect the meaning of the code              | patch*       |
-| refactor | A code change that neither fixes a bug nor adds a feature      | patch*       |
-| perf     | A code change that improves performance                        | patch        |
-| test     | Adding missing tests or correcting existing tests              | no release   |
-| build    | Changes that affect the build system or external dependencies  | no release   |
-| ci       | Changes to our CI configuration files and scripts              | no release   |
-| chore    | Other changes that don't modify src or test files             | no release   |
+| Type | Description | Release Type |
+| --- | --- | --- |
+| feat | A new feature | minor |
+| fix | A bug fix | patch |
+| docs | Documentation only changes | patch* |
+| style | Changes that don't affect the meaning of the code | patch* |
+| refactor | A code change that neither fixes a bug nor adds a feature | patch* |
+| perf | A code change that improves performance | patch |
+| test | Adding missing tests or correcting existing tests | no release |
+| build | Changes that affect the build system or external dependencies | no release |
+| ci | Changes to our CI configuration files and scripts | no release |
+| chore | Other changes that don't modify src or test files | no release |
 
 \* These are custom rules specific to our project
 
 ### Breaking Changes
 
 To indicate a breaking change, either:
+
 1. Add `BREAKING CHANGE:` in the commit message body
 2. Add a `!` after the type/scope
 
 Example:
+
 ```
 feat(cli)!: change default output format
 
@@ -66,7 +68,7 @@ git commit -m "fix(core): handle symlinks correctly"
 
 # Breaking change (major release)
 git commit -m "feat(cli)!: change default output format
-    
+
 BREAKING CHANGE: The default output format is now markdown instead of text."
 
 # Documentation update (patch release)
@@ -96,6 +98,7 @@ The release process is automated through GitHub Actions (see `.github/workflows/
 ### Required Secrets
 
 The workflow requires these GitHub secrets:
+
 - `GITHUB_TOKEN` (automatically provided)
 - `NPM_TOKEN` (if publishing to npm)
 
@@ -105,6 +108,7 @@ While the process is automated, you can trigger a release manually by:
 
 1. Ensuring you're on the main branch
 2. Running:
+
 ```bash
 npx semantic-release
 ```
@@ -122,4 +126,4 @@ If a release isn't triggered as expected:
 
 - [semantic-release documentation](https://semantic-release.gitbook.io/)
 - [Angular Commit Message Convention](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-format)
-- [Conventional Commits](https://www.conventionalcommits.org/) 
+- [Conventional Commits](https://www.conventionalcommits.org/)

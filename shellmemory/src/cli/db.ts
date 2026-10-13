@@ -1,15 +1,15 @@
-import { Database } from 'bun:sqlite';
-import { join } from 'path';
-import { homedir } from 'os';
-import { existsSync, mkdirSync } from 'fs';
+import { Database } from "bun:sqlite";
+import { existsSync, mkdirSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
 
 // Ensure shellmemory directory exists in user's home directory
-const shellmemoryDir = join(homedir(), '.shellmemory');
+const shellmemoryDir = join(homedir(), ".shellmemory");
 if (!existsSync(shellmemoryDir)) {
   mkdirSync(shellmemoryDir, { recursive: true });
 }
 
-const dbPath = join(shellmemoryDir, 'commands.db');
+const dbPath = join(shellmemoryDir, "commands.db");
 
 // Function to get a new database connection
 function getConnection(): Database {
@@ -42,17 +42,25 @@ function initializeDatabase() {
 initializeDatabase();
 
 // Functions for database operations
-export function logCommand(timestamp: number, directory: string, command: string): void {
+export function logCommand(
+  timestamp: number,
+  directory: string,
+  command: string
+): void {
   const db = getConnection();
   try {
-    const stmt = db.query('INSERT INTO commands (timestamp, directory, command) VALUES (?, ?, ?)');
+    const stmt = db.query(
+      "INSERT INTO commands (timestamp, directory, command) VALUES (?, ?, ?)"
+    );
     stmt.run(timestamp, directory, command);
   } finally {
     db.close();
   }
 }
 
-export function getTopCommands(limit = 10): { command: string; count: number }[] {
+export function getTopCommands(
+  limit = 10
+): { command: string; count: number }[] {
   const db = getConnection();
   try {
     const stmt = db.query(`
@@ -84,11 +92,21 @@ export function getCommandsByHour(): { hour: number; count: number }[] {
   }
 }
 
-export function getAllCommands(): { id: number; timestamp: number; directory: string; command: string }[] {
+export function getAllCommands(): {
+  id: number;
+  timestamp: number;
+  directory: string;
+  command: string;
+}[] {
   const db = getConnection();
   try {
-    const stmt = db.query('SELECT * FROM commands ORDER BY timestamp DESC');
-    return stmt.all() as { id: number; timestamp: number; directory: string; command: string }[];
+    const stmt = db.query("SELECT * FROM commands ORDER BY timestamp DESC");
+    return stmt.all() as {
+      id: number;
+      timestamp: number;
+      directory: string;
+      command: string;
+    }[];
   } finally {
     db.close();
   }
@@ -97,7 +115,7 @@ export function getAllCommands(): { id: number; timestamp: number; directory: st
 export function cleanOldCommands(olderThanTimestamp: number): number {
   const db = getConnection();
   try {
-    const stmt = db.query('DELETE FROM commands WHERE timestamp < ?');
+    const stmt = db.query("DELETE FROM commands WHERE timestamp < ?");
     const result = stmt.run(olderThanTimestamp);
     return result.changes;
   } finally {
@@ -105,12 +123,21 @@ export function cleanOldCommands(olderThanTimestamp: number): number {
   }
 }
 
-export function searchCommands(query: string): { id: number; timestamp: number; directory: string; command: string }[] {
+export function searchCommands(
+  query: string
+): { id: number; timestamp: number; directory: string; command: string }[] {
   const db = getConnection();
   try {
-    const stmt = db.query('SELECT * FROM commands WHERE command LIKE ? ORDER BY timestamp DESC');
-    return stmt.all(`%${query}%`) as { id: number; timestamp: number; directory: string; command: string }[];
+    const stmt = db.query(
+      "SELECT * FROM commands WHERE command LIKE ? ORDER BY timestamp DESC"
+    );
+    return stmt.all(`%${query}%`) as {
+      id: number;
+      timestamp: number;
+      directory: string;
+      command: string;
+    }[];
   } finally {
     db.close();
   }
-} 
+}
